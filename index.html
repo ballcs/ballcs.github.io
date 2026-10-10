@@ -374,8 +374,8 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
         <a class="project" href="project.html?id=ai">
           <div class="p-meta"><span>AI platform</span><em>Production</em></div>
           <h3>University AI Gateway</h3>
-          <p lang="en">University-wide AI service with Microsoft 365 sign-in, API keys, daily token budgets and usage monitoring. Local models (Qwen ×3 load-balanced, Typhoon, GLM, Foundation-sec) run on 2 servers with 6 NVIDIA L40S GPUs.</p>
-          <p lang="th">บริการ AI สำหรับทั้งมหาวิทยาลัย login ด้วย Microsoft 365 มี API key โควตา token รายวัน และ monitor การใช้งาน โมเดลในองค์กร (Qwen ×3 แบบ load balance, Typhoon, GLM, Foundation-sec) รันบน server 2 เครื่อง NVIDIA L40S 6 ใบ</p>
+          <p lang="en">University-wide AI service with Microsoft 365-only sign-in, API keys, daily token budgets and usage monitoring. Local models (Qwen ×3 load-balanced, Typhoon, GLM, Foundation-sec) run on 2 servers with 6 NVIDIA L40S GPUs, with OpenRouter for external models when needed.</p>
+          <p lang="th">บริการ AI สำหรับทั้งมหาวิทยาลัย login ด้วย Microsoft 365 เท่านั้น มี API key โควตา token รายวัน และ monitor การใช้งาน โมเดลในองค์กร (Qwen ×3 แบบ load balance, Typhoon, GLM, Foundation-sec) รันบน server 2 เครื่อง NVIDIA L40S 6 ใบ และใช้ OpenRouter สำหรับโมเดลภายนอกเมื่อจำเป็น</p>
           <div class="chips"><span>LiteLLM</span><span>vLLM</span><span>LibreChat</span><span>L40S × 6</span></div>
         <span class="more"><span lang="en">Read case study ↗</span><span lang="th">อ่าน case study ↗</span></span></a>
         <a class="project" href="project.html?id=pqc">
@@ -412,7 +412,7 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
               <li>Maintain 250+ university WordPress sites: updates, hardening and incident response.</li>
               <li>Co-led the move of production deployments from webhooks to GitHub Actions on self-hosted runners across PHP (Laravel, Yii2, Yii1, CodeIgniter 2), Python, Next.js and .NET Core, owning security and operations: CodeQL, Dependabot and npm audit, least-privilege tokens, deploy confirmation and locks, rollback snapshots, zero-downtime reloads and post-deploy health checks.</li>
               <li>Expanding SSO and designing a secondary IdP for service continuity.</li>
-              <li>Deployed and operate the university-wide AI platform (LiteLLM, vLLM, LibreChat) with Microsoft 365 sign-in, API keys, daily per-user token budgets and university-wide usage monitoring; local models (Qwen ×3 load-balanced, Typhoon, GLM, Foundation-sec) on 2 servers with 6 NVIDIA L40S GPUs, including procurement and technical specifications.</li>
+              <li>Deployed and operate the university-wide AI platform (LiteLLM, vLLM, LibreChat) with Microsoft 365 sign-in, API keys, daily per-user token budgets and university-wide usage monitoring; local models (Qwen ×3 load-balanced, Typhoon, GLM, Foundation-sec) on 2 servers with 6 NVIDIA L40S GPUs, plus external models through OpenRouter, including procurement and technical specifications.</li>
             </ul>
             <ul lang="th">
               <li>ดูแลโครงสร้างพื้นฐานแบบผสมสำหรับผู้ใช้ราว 20,000 คน รวมถึง Proxmox cluster และระบบ backup</li>
@@ -425,7 +425,7 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
               <li>ดูแลเว็บไซต์ WordPress ของหน่วยงานกว่า 250 เว็บ ทั้งการอัปเดต hardening และการรับมือเมื่อถูกโจมตี</li>
               <li>ร่วมย้ายการ deploy ขึ้น production server จาก webhook ไปเป็น GitHub Actions บน self-hosted runner ครอบคลุม PHP (Laravel, Yii2, Yii1, CodeIgniter 2), Python, Next.js และ .NET Core รับผิดชอบด้าน security และ operation: CodeQL, Dependabot และ npm audit, สิทธิ์ token ขั้นต่ำ, ยืนยันและกันการ deploy ซ้อน, snapshot สำหรับ rollback, reload แบบไม่มี downtime และ health check หลัง deploy</li>
               <li>ขยาย SSO และออกแบบ IdP สำรองเพื่อความต่อเนื่องของบริการ</li>
-              <li>ติดตั้งและดูแลแพลตฟอร์ม AI สำหรับทั้งมหาวิทยาลัย (LiteLLM, vLLM, LibreChat) login ด้วย Microsoft 365 มี API key โควตา token รายวันต่อผู้ใช้ และ monitor การใช้งานได้ทั้งมหาวิทยาลัย โมเดลในองค์กร (Qwen ×3 แบบ load balance, Typhoon, GLM, Foundation-sec) บน server 2 เครื่อง NVIDIA L40S 6 ใบ รวมถึงงานจัดซื้อและเอกสารข้อกำหนด</li>
+              <li>ติดตั้งและดูแลแพลตฟอร์ม AI สำหรับทั้งมหาวิทยาลัย (LiteLLM, vLLM, LibreChat) login ด้วย Microsoft 365 มี API key โควตา token รายวันต่อผู้ใช้ และ monitor การใช้งานได้ทั้งมหาวิทยาลัย โมเดลในองค์กร (Qwen ×3 แบบ load balance, Typhoon, GLM, Foundation-sec) บน server 2 เครื่อง NVIDIA L40S 6 ใบ และโมเดลภายนอกผ่าน OpenRouter รวมถึงงานจัดซื้อและเอกสารข้อกำหนด</li>
             </ul>
           </div>
         </div>

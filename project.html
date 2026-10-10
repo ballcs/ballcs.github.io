@@ -281,40 +281,42 @@ const PROJECTS = [
 {
   id:'ai', title:'University AI Gateway', category:'AI platform', status:'Production',
   diagram:lang=>aiDiagram(lang),
-  stack:['LiteLLM','vLLM','LibreChat','NVIDIA L40S','Qwen','Typhoon','GLM','Foundation-sec','Microsoft 365 / Entra ID'],
+  stack:['LiteLLM','vLLM','LibreChat','NVIDIA L40S','Qwen','Typhoon','GLM','Foundation-sec','OpenRouter','Microsoft 365 / Entra ID'],
   en:{
-    summary:'A university-wide AI service: staff and students sign in with Microsoft 365, systems and developers use API keys, and every request goes through one gateway with daily token budgets and university-wide usage monitoring. Models run locally on two GPU servers with six NVIDIA L40S cards.',
-    facts:{'Role':'Deploy & operate','Users':'University-wide','Access':'Microsoft 365 · API keys','GPUs':'2 servers · 6 × L40S'},
+    summary:'A university-wide AI service: Microsoft 365 is the only way to sign in, systems and developers use API keys, and every request goes through one gateway with daily token budgets and university-wide usage monitoring. Models run locally on two GPU servers with six NVIDIA L40S cards.',
+    facts:{'Role':'Deploy & operate','Users':'University-wide','Sign-in':'Microsoft 365 only','GPUs':'2 servers · 6 × L40S'},
     arch:[['Users','Staff & students','Microsoft 365 sign-in'],['Client','LibreChat · API keys','chat and systems'],['Gateway','LiteLLM','budgets, routing, logs'],['Models','vLLM','Qwen ×3 · Typhoon · GLM · Foundation-sec'],['GPU','2 servers','6 × NVIDIA L40S']],
     problem:'Departments had started using external AI services on their own, so costs were uncontrolled and internal data was at risk of leaking. The university needed one service everyone could use safely, and that other systems could build on.',
     approach:[
       ['One gateway for everything','Every request, from the chat UI or from an API key, goes through LiteLLM, so access, usage and logs live in one place.'],
-      ['Sign in with Microsoft 365','LibreChat uses university accounts through Entra ID, so access and budgets map to real people and end when they leave.'],
+      ['Microsoft 365 sign-in only','There are no local accounts: everyone signs in with their university Microsoft 365 account through Entra ID, so access and budgets map to real people and end automatically when they leave.'],
       ['API keys for systems and developers','Internal systems and developers get their own API keys on the same gateway; the SOC triage pipeline uses one to summarize alerts without sending data outside.'],
       ['Daily token budgets','Each user has a daily token allowance, which keeps the GPUs fair for everyone and makes load predictable.'],
       ['Local models, load-balanced','Qwen runs as three replicas on separate GPUs and the gateway balances requests across them. Typhoon handles Thai, GLM adds a second general model, and Foundation-sec serves security work, all on two servers with three L40S each.'],
+      ['External models when needed','For tasks that need larger models, the gateway can route to external models through OpenRouter. For now only low-cost models are enabled, so spend stays under control while local models handle most work.'],
       ['Monitor the whole university','Usage is visible per user, per API key and per model across the university, so heavy use and abuse show up early.'],
     ],
     outcomes:[['6','NVIDIA L40S GPUs across 2 servers'],['4','local model families (Qwen, Typhoon, GLM, Foundation-sec)'],['3','load-balanced Qwen replicas']],
     lessons:'Setting per-user budgets from day one is far easier than adding limits later. Running several replicas of the most popular model behind the gateway matters more than adding more models.',
-    security:'Prompt content logging is limited under the personal data policy, internal data stays on local models, and no hostnames or endpoints are shown here.'
+    security:'Prompt content logging is limited under the personal data policy. Local models are the default and external models are opt-in through the gateway. No hostnames or endpoints are shown here.'
   },
   th:{
-    summary:'บริการ AI สำหรับทั้งมหาวิทยาลัย บุคลากรและนักศึกษา login ด้วย Microsoft 365 ระบบและนักพัฒนาใช้ API key ทุก request ผ่าน gateway เดียวที่มีโควตา token รายวัน และ monitor การใช้งานได้ทั้งมหาวิทยาลัย โมเดลรันในองค์กรบน GPU server 2 เครื่อง รวม NVIDIA L40S 6 ใบ',
-    facts:{'บทบาท':'ติดตั้งและดูแล','ผู้ใช้':'ทั้งมหาวิทยาลัย','การเข้าถึง':'Microsoft 365 · API key','GPU':'2 server · L40S × 6'},
+    summary:'บริการ AI สำหรับทั้งมหาวิทยาลัย login ได้ด้วย Microsoft 365 เท่านั้น ระบบและนักพัฒนาใช้ API key ทุก request ผ่าน gateway เดียวที่มีโควตา token รายวัน และ monitor การใช้งานได้ทั้งมหาวิทยาลัย โมเดลรันในองค์กรบน GPU server 2 เครื่อง รวม NVIDIA L40S 6 ใบ',
+    facts:{'บทบาท':'ติดตั้งและดูแล','ผู้ใช้':'ทั้งมหาวิทยาลัย','Login':'Microsoft 365 เท่านั้น','GPU':'2 server · L40S × 6'},
     arch:[['Users','บุคลากร · นักศึกษา','login ด้วย M365'],['Client','LibreChat · API key','แชตและระบบ'],['Gateway','LiteLLM','โควตา, routing, log'],['Models','vLLM','Qwen ×3 · Typhoon · GLM · Foundation-sec'],['GPU','2 server','NVIDIA L40S × 6']],
     problem:'หน่วยงานต่าง ๆ เริ่มใช้บริการ AI ภายนอกกันเอง ทำให้ควบคุมค่าใช้จ่ายไม่ได้และมีความเสี่ยงที่ข้อมูลภายในจะหลุดออกไป มหาวิทยาลัยจึงต้องมีบริการเดียวที่ทุกคนใช้ได้อย่างปลอดภัย และระบบอื่นต่อยอดได้',
     approach:[
       ['Gateway เดียวสำหรับทุกอย่าง','ทุก request ทั้งจากหน้าแชตและจาก API key ผ่าน LiteLLM ทำให้สิทธิ์ การใช้งาน และ log อยู่ที่เดียว'],
-      ['Login ด้วย Microsoft 365','LibreChat ใช้บัญชีมหาวิทยาลัยผ่าน Entra ID สิทธิ์และโควตาจึงผูกกับตัวบุคคล และหมดสิทธิ์เมื่อพ้นสภาพ'],
+      ['Login ด้วย Microsoft 365 เท่านั้น','ไม่มีบัญชี local ทุกคนต้อง login ด้วยบัญชี Microsoft 365 ของมหาวิทยาลัยผ่าน Entra ID สิทธิ์และโควตาจึงผูกกับตัวบุคคล และหมดสิทธิ์อัตโนมัติเมื่อพ้นสภาพ'],
       ['API key สำหรับระบบและนักพัฒนา','ระบบภายในและนักพัฒนาได้ API key ของตัวเองบน gateway เดียวกัน เช่น SOC triage pipeline ใช้สรุป alert โดยไม่ส่งข้อมูลออกภายนอก'],
       ['โควตา token รายวัน','ผู้ใช้แต่ละคนมีโควตา token ต่อวัน ทำให้ทุกคนได้ใช้ GPU อย่างเป็นธรรมและคาดการณ์โหลดได้'],
       ['โมเดลในองค์กรแบบ load balance','Qwen รัน 3 replica บน GPU คนละใบ และ gateway กระจาย request ให้ Typhoon ใช้กับงานภาษาไทย GLM เป็นโมเดลทั่วไปอีกตัว และ Foundation-sec สำหรับงาน security ทั้งหมดอยู่บน server 2 เครื่อง เครื่องละ L40S 3 ใบ'],
+      ['ใช้โมเดลภายนอกเมื่อจำเป็น','งานที่ต้องใช้โมเดลขนาดใหญ่ gateway ส่งต่อไปยังโมเดลภายนอกผ่าน OpenRouter ได้ ตอนนี้เปิดให้ใช้เฉพาะโมเดลราคาไม่แพงก่อนเพื่อคุมค่าใช้จ่าย ส่วนงานส่วนใหญ่ยังใช้โมเดลในองค์กร'],
       ['Monitor ได้ทั้งมหาวิทยาลัย','เห็นการใช้งานแยกตามผู้ใช้ API key และโมเดลทั้งมหาวิทยาลัย การใช้งานหนักหรือผิดวัตถุประสงค์จึงเห็นได้เร็ว'],
     ],
     outcomes:[['6','NVIDIA L40S บน server 2 เครื่อง'],['4','กลุ่มโมเดลในองค์กร (Qwen, Typhoon, GLM, Foundation-sec)'],['3','replica ของ Qwen ที่ทำ load balance']],
     lessons:'การกำหนดโควตาต่อผู้ใช้ตั้งแต่วันแรกง่ายกว่าการมาจำกัดทีหลังมาก และการรันโมเดลที่คนใช้มากที่สุดหลาย replica หลัง gateway สำคัญกว่าการเพิ่มจำนวนโมเดล',
-    security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล ข้อมูลภายในอยู่กับโมเดลในองค์กร และไม่แสดง hostname หรือ endpoint ในหน้านี้'
+    security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล ค่าเริ่มต้นคือโมเดลในองค์กร ส่วนโมเดลภายนอกต้องเลือกใช้ผ่าน gateway และไม่แสดง hostname หรือ endpoint ในหน้านี้'
   }
 },
 {
@@ -560,7 +562,7 @@ function examDiagram(lang){
 /* ---------- Conceptual diagram (AI gateway) ---------- */
 function aiDiagram(lang){
   const L=lang==='th'?{
-    edge:'ทั้งมหาวิทยาลัย · login ด้วย Microsoft 365 หรือ API key · ทุก request ผ่าน gateway เดียว',
+    edge:'ทั้งมหาวิทยาลัย · login ด้วย Microsoft 365 เท่านั้น ไม่มีบัญชี local · ทุก request ผ่าน gateway เดียว',
     us:['USERS','บุคลากร · นักศึกษา',['ทั้งมหาวิทยาลัย']],
     id:['IDENTITY','Microsoft 365',['Entra ID · SSO']],
     ui:['CLIENT','LibreChat',['web UI · แชต']],
@@ -569,9 +571,10 @@ function aiDiagram(lang){
     mo:['LOCAL MODELS · vLLM','Model pool',['Qwen × 3 · load balanced','Typhoon · ภาษาไทย','GLM','Foundation-sec · security']],
     gpu:['GPU','2 server · L40S × 6',['เครื่องละ 3 ใบ']],
     mn:['MONITORING','Usage dashboard',['ต่อผู้ใช้ · ต่อ API key','ต่อโมเดล · ทั้งมหาวิทยาลัย']],
+    ex:['EXTERNAL','OpenRouter',['โมเดลขนาดใหญ่เมื่อจำเป็น','ตอนนี้เฉพาะรุ่นราคาถูก']],
     lg:['เส้นทาง request','ตัวตนและข้อมูลการใช้งาน']
   }:{
-    edge:'University-wide · Microsoft 365 sign-in or API key · every request goes through one gateway',
+    edge:'University-wide · Microsoft 365 sign-in only, no local accounts · every request goes through one gateway',
     us:['USERS','Staff & students',['whole university']],
     id:['IDENTITY','Microsoft 365',['Entra ID · SSO']],
     ui:['CLIENT','LibreChat',['web UI · chat']],
@@ -580,6 +583,7 @@ function aiDiagram(lang){
     mo:['LOCAL MODELS · vLLM','Model pool',['Qwen × 3 · load balanced','Typhoon · Thai','GLM','Foundation-sec · security']],
     gpu:['GPU','2 servers · L40S × 6',['3 cards per server']],
     mn:['MONITORING','Usage dashboard',['per user · per API key','per model · university-wide']],
+    ex:['EXTERNAL','OpenRouter',['larger models when needed','low-cost models for now']],
     lg:['Request path','Identity & usage data']
   };
   const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -604,12 +608,14 @@ function aiDiagram(lang){
   ${box(676,60,W,146,L.mo,'core')}
   ${box(676,236,W,96,L.gpu,'core')}${gpus(690,312)}
   ${box(870,236,W-10,96,L.mn)}
+  ${box(870,90,W-10,96,L.ex)}
 
   <path class="alert" d="M190,120 L230,120" marker-end="url(#ga)"/>
   <path class="alert" d="M412,120 C434,120 432,170 452,170" marker-end="url(#ga)"/>
   <path class="alert" d="M412,288 C434,288 432,232 452,232" marker-end="url(#ga)"/>
   <path class="alert" d="M634,180 C654,180 654,133 674,133" marker-end="url(#ga)"/>
   <path class="alert" d="M766,206 L766,234" marker-end="url(#ga)"/>
+  <path class="alert" d="M560,120 L560,70 C560,56 568,50 584,50 L931,50 C947,50 955,58 955,72 L955,88" marker-end="url(#ga)" stroke-dasharray="3 5"/>
   <path class="share" d="M100,298 L100,162" marker-end="url(#gs)"/>
   <path class="share" d="M190,350 C220,350 214,150 230,146" marker-end="url(#gs)"/>
   <path class="share" d="M544,266 C544,400 955,410 955,334" marker-end="url(#gs)"/>
