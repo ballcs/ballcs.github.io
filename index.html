@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wichukorn Dandecha | Systems & Security Analyst</title>
+<meta name="description" content="Wichukorn Dandecha — Computer System Analyst at Walailak University. Identity, SOC automation, and infrastructure.">
+<meta name="theme-color" content="#070D1A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wichukorn Dandecha | Systems & Security Analyst">
+<meta property="og:description" content="Wichukorn Dandecha — Computer System Analyst at Walailak University. Identity, SOC automation, and infrastructure.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070D1A'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='26' font-weight='700' fill='%232F6FE0' text-anchor='middle'%3EWD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1) DESIGN TOKENS — เปลี่ยนสีทั้งเว็บได้จากตรงนี้
+   ========================================================= */
+:root{
+  --bg:#070D1A; --bg-2:#0B1426; --surface:rgba(18,30,54,.62); --surface-solid:#101B31;
+  --line:rgba(140,170,220,.14); --line-strong:rgba(140,170,220,.28);
+  --text:#E8EEF8; --muted:#8C9AB3; --dim:#5F6D86;
+  --accent:#6EA8FF; --accent-2:#43D9C3; --warn:#F5B84C; --crit:#FF6B7A; --ok:#5BD6A0;
+  --glow:rgba(110,168,255,.18);
+  --display:"Sora","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai","Sora",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r-lg:18px; --r-md:12px;
+}
+:root[data-theme="light"]{
+  --bg:#F3F6FB; --bg-2:#E9EEF6; --surface:rgba(255,255,255,.78); --surface-solid:#FFFFFF;
+  --line:rgba(20,40,80,.11); --line-strong:rgba(20,40,80,.22);
+  --text:#0E1A2E; --muted:#51607A; --dim:#7B879C;
+  --accent:#2F6FE0; --accent-2:#0E9F8C; --glow:rgba(47,111,224,.12);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:16.5px/1.7 var(--body); -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  overflow-x:hidden;
+}
+/* พื้นหลัง: แสงเรืองสองจุด + grid จาง ๆ */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 85% -10%, var(--glow), transparent 60%),
+    radial-gradient(700px 480px at -10% 30%, rgba(67,217,195,.08), transparent 60%),
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0/56px 56px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/56px 56px;
+  mask-image:linear-gradient(to bottom, #000 0%, rgba(0,0,0,.35) 40%, transparent 85%);
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:99;background:var(--accent);color:#fff;padding:8px 12px}
+
+/* =========================================================
+   2) HEADER
+   ========================================================= */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
+nav{display:flex;align-items:center;gap:6px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;font:600 15px/1 var(--display);letter-spacing:.02em}
+.logo i{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#04101F;font-weight:700}
+.logo small{color:var(--dim);font-weight:500}
+.nav-link{padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;transition:color .2s,background .2s}
+.nav-link:hover{color:var(--text);background:var(--surface)}
+.icon-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:9px;
+  height:36px;padding:0 12px;font:500 13.5px var(--body);cursor:pointer;margin-left:8px}
+.cta-sm{margin-left:6px;height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:9px;
+  background:var(--text);color:var(--bg);text-decoration:none;font-weight:600;font-size:13.5px}
+@media (max-width:860px){.nav-link{display:none}}
+
+/* =========================================================
+   3) HERO
+   ========================================================= */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;padding:88px 0 72px}
+.status{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 10px;border:1px solid var(--line-strong);
+  border-radius:999px;background:var(--surface);font-size:13.5px;color:var(--muted)}
+.status b{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(91,214,160,.18)}
+.hero h1{font:600 clamp(40px,6.2vw,74px)/1.02 var(--display);letter-spacing:-.035em;margin:22px 0 18px}
+.hero h1 .role{display:block;color:var(--muted);font-weight:500}
+.hero .intro{font-size:18.5px;color:var(--muted);max-width:33em;margin:0 0 30px}
+.hero .intro strong{color:var(--text);font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;
+  text-decoration:none;font-weight:600;font-size:15px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#8C7BFF);color:#fff;box-shadow:0 10px 30px -10px var(--accent)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px var(--accent)}
+.btn.ghost{border:1px solid var(--line-strong);background:var(--surface)}
+.btn.ghost:hover{border-color:var(--accent)}
+.stats{display:flex;gap:40px;margin-top:44px;padding-top:28px;border-top:1px solid var(--line)}
+.stats div{font:600 32px/1 var(--display);letter-spacing:-.02em}
+.stats span{display:block;font:400 13.5px/1.4 var(--body);color:var(--muted);margin-top:8px;letter-spacing:0}
+
+/* Portrait card */
+.portrait{position:relative;aspect-ratio:4/5;border-radius:24px;overflow:hidden;border:1px solid var(--line-strong);
+  background:radial-gradient(120% 90% at 30% 10%,#1C335E,#0A1426 70%)}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.portrait .initials{position:absolute;inset:0;display:grid;place-items:center;font:600 120px var(--display);
+  color:rgba(255,255,255,.08);letter-spacing:-.05em}
+.portrait::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,10,22,.85),transparent 45%)}
+.p-tag{position:absolute;z-index:2;font:500 12px var(--mono);color:#DCE6F7;background:rgba(8,16,32,.6);
+  border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);padding:7px 11px;border-radius:9px}
+.p-tag.t1{top:18px;left:18px}.p-tag.t2{top:18px;right:18px}
+.p-caption{position:absolute;z-index:2;left:22px;right:22px;bottom:20px;color:#fff}
+.p-caption b{display:block;font:600 19px var(--display)}
+.p-caption span{font-size:14px;color:#B7C4DB}
+
+/* =========================================================
+   4) SECTION SHELL
+   ========================================================= */
+section{padding:96px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:32px;margin-bottom:44px;flex-wrap:wrap}
+.kicker{font:500 13px var(--mono);color:var(--accent);margin-bottom:12px}
+.sec-head h2{font:600 clamp(30px,4vw,46px)/1.1 var(--display);letter-spacing:-.03em;margin:0;max-width:16em}
+.sec-head p{color:var(--muted);max-width:30em;margin:0}
+
+/* =========================================================
+   5) SOC CONSOLE (จุดเด่นของหน้า)
+   ========================================================= */
+.console{border:1px solid var(--line-strong);border-radius:var(--r-lg);overflow:hidden;
+  background:linear-gradient(180deg,#0C1629,#08101F);box-shadow:0 40px 80px -40px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.02) inset;color:#DCE6F7}
+.c-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(140,170,220,.14);font:500 12.5px var(--mono);color:#7F8FAD}
+.c-bar i{width:11px;height:11px;border-radius:50%;background:#2A3754}
+.c-bar i:nth-child(1){background:#FF5F57}.c-bar i:nth-child(2){background:#FEBC2E}.c-bar i:nth-child(3){background:#28C840}
+.c-bar .title{margin-left:10px}.c-bar .live{margin-left:auto;color:var(--ok)}
+.c-body{display:grid;grid-template-columns:200px 1fr 250px;min-height:360px}
+.c-side{border-right:1px solid rgba(140,170,220,.12);padding:16px 10px;font:13px var(--mono)}
+.c-side div{padding:8px 12px;border-radius:8px;color:#7F8FAD}
+.c-side .on{background:rgba(110,168,255,.12);color:#DCE6F7}
+.c-log{padding:18px 22px;font:13.5px/1.9 var(--mono);overflow:hidden}
+.c-log .ts{color:#56668A}.c-log .src{color:#6EA8FF}.c-log .hi{color:var(--warn)}.c-log .cr{color:var(--crit)}.c-log .ok{color:var(--ok)}
+.caret{display:inline-block;width:8px;height:15px;vertical-align:-2px;background:#DCE6F7;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.c-stats{border-left:1px solid rgba(140,170,220,.12);padding:18px;display:flex;flex-direction:column;gap:18px;font:12.5px var(--mono);color:#7F8FAD}
+.meter b{display:flex;justify-content:space-between;color:#DCE6F7;font-weight:500;margin-bottom:8px}
+.meter u{display:block;height:6px;border-radius:6px;background:rgba(140,170,220,.12);overflow:hidden;text-decoration:none}
+.meter u i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 1.2s ease}
+.c-note{margin-top:14px;font-size:13.5px;color:var(--dim)}
+@media (max-width:980px){.c-body{grid-template-columns:1fr}.c-side,.c-stats{display:none}}
+
+/* =========================================================
+   6) FLOW (เป็นลำดับจริง จึงใช้ตัวเลข)
+   ========================================================= */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface);margin-top:28px}
+.flow div{padding:24px;border-right:1px solid var(--line);position:relative}
+.flow div:last-child{border-right:0}
+.flow small{font:500 12.5px var(--mono);color:var(--accent)}
+.flow b{display:block;font:600 19px var(--display);margin:8px 0 4px}
+.flow span{color:var(--muted);font-size:14.5px}
+@media (max-width:760px){.flow{grid-template-columns:1fr 1fr}.flow div:nth-child(2){border-right:0}.flow div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+
+/* =========================================================
+   7) PROJECTS
+   ========================================================= */
+.projects{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.project{position:relative;padding:30px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);
+  overflow:hidden;transition:border-color .25s,transform .25s}
+.project::before{content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s;
+  background:radial-gradient(500px 200px at var(--mx,50%) 0%,var(--glow),transparent 70%)}
+.project:hover{border-color:var(--line-strong);transform:translateY(-3px)}
+.project:hover::before{opacity:1}
+.project > *{position:relative}
+.project{display:block;text-decoration:none;color:inherit}
+.project .more{display:inline-block;margin-top:22px;font-weight:600;font-size:14.5px;color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:99;max-width:min(92vw,520px);padding:14px 18px;border-radius:12px;background:var(--surface-solid);border:1px solid var(--line-strong);box-shadow:0 20px 50px -20px rgba(0,0,0,.6);font-size:14.5px;transition:.3s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.p-meta{display:flex;justify-content:space-between;font:500 12.5px var(--mono);color:var(--dim);margin-bottom:26px}
+.p-meta em{font-style:normal;color:var(--accent-2)}
+.project h3{font:600 25px/1.2 var(--display);letter-spacing:-.02em;margin:0 0 12px}
+.project p{color:var(--muted);margin:0 0 22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font:500 12.5px var(--mono);padding:5px 10px;border-radius:7px;border:1px solid var(--line);color:var(--muted);background:var(--bg-2)}
+@media (max-width:820px){.projects{grid-template-columns:1fr}}
+
+/* =========================================================
+   8) EXPERIENCE TIMELINE
+   ========================================================= */
+.timeline{border-left:1px solid var(--line-strong);margin-left:6px}
+.job{position:relative;display:grid;grid-template-columns:220px 1fr;gap:32px;padding:0 0 40px 36px}
+.job::before{content:"";position:absolute;left:-7px;top:8px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.job.now::before{background:var(--accent);box-shadow:0 0 0 6px var(--glow)}
+.job .when{font:500 13.5px var(--mono);color:var(--muted);padding-top:4px}
+.job h3{font:600 22px var(--display);margin:0 0 2px;letter-spacing:-.015em}
+.job .org{color:var(--accent);font-weight:500;margin-bottom:12px}
+.job ul{margin:0;padding-left:18px;color:var(--muted)}
+.job li{margin-bottom:6px}
+@media (max-width:720px){.job{grid-template-columns:1fr;gap:6px}}
+
+/* =========================================================
+   9) TOOLKIT + CREDENTIALS
+   ========================================================= */
+.toolkit{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tool{padding:26px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.tool h3{font:600 17px var(--display);margin:0 0 14px}
+.tool ul{list-style:none;margin:0;padding:0;color:var(--muted);font-size:15px}
+.tool li{padding:7px 0;border-top:1px dashed var(--line)}
+.tool li:first-child{border-top:0}
+@media (max-width:980px){.toolkit{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.toolkit{grid-template-columns:1fr}}
+
+.certs{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.cert{display:flex;flex-direction:column;justify-content:space-between;min-height:150px;padding:22px;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);text-decoration:none;transition:border-color .2s}
+.cert:hover{border-color:var(--accent)}
+.cert small{font:500 12px var(--mono);color:var(--dim)}
+.cert b{font:600 18px/1.25 var(--display);margin:10px 0}
+.cert span{font-size:13.5px;color:var(--accent)}
+@media (max-width:980px){.certs{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:600px){.certs{grid-template-columns:1fr 1fr}}
+
+/* =========================================================
+   10) CONTACT + FOOTER
+   ========================================================= */
+.contact{position:relative;overflow:hidden;border:1px solid var(--line-strong);border-radius:28px;padding:64px;
+  background:radial-gradient(600px 300px at 90% 0%,var(--glow),transparent 70%),var(--surface);
+  display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end}
+.contact h2{font:600 clamp(34px,5vw,56px)/1.05 var(--display);letter-spacing:-.035em;margin:0 0 16px}
+.contact p{color:var(--muted);margin:0 0 28px;max-width:28em}
+.links{display:flex;flex-direction:column;gap:2px}
+.links a{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);text-decoration:none;transition:color .2s,padding .2s}
+.links a:hover{color:var(--accent);padding-left:6px}
+.links a span{color:var(--dim);font:500 13px var(--mono)}
+@media (max-width:820px){.contact{grid-template-columns:1fr;padding:36px}}
+footer{padding:40px 0 60px;color:var(--dim);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* =========================================================
+   11) LOAD ANIMATION (เล่นครั้งเดียวที่ hero)
+   ========================================================= */
+.rise{opacity:0;transform:translateY(18px);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}.d5{animation-delay:.45s}
+@keyframes rise{to{opacity:1;transform:none}}
+
+@media (max-width:900px){.hero{grid-template-columns:1fr;padding-top:56px}.portrait{max-width:420px}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}.rise{animation:none;opacity:1;transform:none}.caret{animation:none}
+  .project,.btn{transition:none}
+}
+html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span lang="en">Skip to content</span><span lang="th">ข้ามไปยังเนื้อหา</span></a>
+
+<header>
+  <nav class="wrap" aria-label="Main">
+    <a class="logo" href="#top"><i>WD</i>BallCS <small>/ CDI</small></a>
+    <a class="nav-link" href="#console">Workspace</a>
+    <a class="nav-link" href="#work"><span lang="en">Work</span><span lang="th">ผลงาน</span></a>
+    <a class="nav-link" href="#experience"><span lang="en">Experience</span><span lang="th">ประสบการณ์</span></a>
+    <a class="nav-link" href="#toolkit">Toolkit</a>
+    <a class="nav-link" href="#credentials">Credentials</a>
+    <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language / เปลี่ยนภาษา">TH</button>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle light/dark theme">☀ Light</button>
+    <a class="cta-sm" href="#contact"><span lang="en">Contact</span><span lang="th">ติดต่อ</span></a>
+  </nav>
+</header>
+
+<main id="main">
+  <!-- ================= HERO ================= -->
+  <div class="wrap hero" id="top">
+    <div>
+      <span class="status rise d1"><b></b>Walailak University · Nakhon Si Thammarat</span>
+      <h1 class="rise d2">Wichukorn Dandecha<span class="role">Systems &amp; Security Analyst.</span></h1>
+      <p class="intro rise d3" lang="en">I run <strong>identity, security operations and private cloud</strong> for a university of 20,000+ users, including Microsoft 365, Google Workspace and 250+ WordPress sites, from the first alert to the closed case.</p>
+      <p class="intro rise d3" lang="th">ดูแล <strong>identity, งาน security operations และ private cloud</strong> ของมหาวิทยาลัยที่มีผู้ใช้กว่า 20,000 คน รวมถึง Microsoft 365, Google Workspace และเว็บไซต์ WordPress กว่า 250 เว็บ ตั้งแต่ alert แรกจนถึงการปิดเคส</p>
+      <div class="actions rise d4">
+        <a class="btn primary" href="#work"><span lang="en">View work ↗</span><span lang="th">ดูผลงาน ↗</span></a>
+        <a class="btn ghost" href="#contact"><span lang="en">Get in touch</span><span lang="th">ติดต่อ</span></a>
+      </div>
+      <div class="stats rise d5">
+        <div>20K+<span lang="en">users supported</span><span lang="th">ผู้ใช้ที่ดูแล</span></div>
+        <div>5<span>Security certifications</span></div>
+        <div>250+<span lang="en">WordPress sites maintained</span><span lang="th">เว็บไซต์ WordPress ที่ดูแล</span></div>
+      </div>
+    </div>
+
+    <figure class="portrait rise d3" style="margin:0">
+      <!-- วางรูปชื่อ portrait.jpg ไว้ข้าง index.html แล้วรูปจะแทนตัวอักษร WD อัตโนมัติ -->
+      <span class="initials" aria-hidden="true">WD</span>
+      <img src="portrait.jpg" alt="Wichukorn Dandecha" onerror="this.remove()">
+      <span class="p-tag t1">CySA+ · PenTest+ · CEH</span>
+      <span class="p-tag t2">● on-call</span>
+      <figcaption class="p-caption"><b lang="en">Center for Digital Innovation</b><b lang="th">ศูนย์นวัตกรรมดิจิทัล</b><span>Walailak University</span></figcaption>
+    </figure>
+  </div>
+
+  <!-- ================= CONSOLE ================= -->
+  <section id="console">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="kicker">// workspace</div><h2 lang="en">Behind the alert triage</h2><h2 lang="th">เบื้องหลังการคัดกรอง alert</h2></div>
+        <p lang="en">A simulation of the pipeline in production. Everything in this window is generated for the portfolio, not live data.</p>
+        <p lang="th">ภาพจำลองของ pipeline ที่ใช้งานจริง ข้อมูลในหน้าต่างนี้สร้างขึ้นเพื่อประกอบ portfolio ไม่ใช่ข้อมูลสด</p>
+      </div>
+
+      <div class="console" role="img" aria-label="Simulated SOC console showing alerts being enriched and triaged before reaching an analyst">
+        <div class="c-bar"><i></i><i></i><i></i><span class="title">analyst@soc — console</span><span class="live">● demo loop</span></div>
+        <div class="c-body">
+          <div class="c-side" aria-hidden="true">
+            <div class="on">▸ triage</div><div>  wazuh</div><div>  fortiweb</div><div>  shuffle</div><div>  cortex</div><div>  ai-triage</div><div>  iris</div>
+          </div>
+          <div class="c-log" id="log" aria-hidden="true"></div>
+          <div class="c-stats" aria-hidden="true">
+            <div class="meter"><b>Auto-enriched <em id="m1v">0%</em></b><u><i id="m1" style="width:0"></i></u></div>
+            <div class="meter"><b>False positives filtered <em id="m2v">0%</em></b><u><i id="m2" style="width:0"></i></u></div>
+            <div class="meter"><b>Escalated to human <em id="m3v">0%</em></b><u><i id="m3" style="width:0"></i></u></div>
+            <div style="margin-top:auto;line-height:1.7">sources<br><span style="color:#DCE6F7">wazuh · fortiweb · m365</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div><small>01</small><b>Collect</b><span>Wazuh agents, FortiWeb, M365</span></div>
+        <div><small>02</small><b>Detect</b><span>Custom rules, correlation</span></div>
+        <div><small>03</small><b>Enrich</b><span>Cortex: MISP, OpenCTI, AbuseIPDB</span></div>
+        <div><small>04</small><b>Triage</b><span lang="en">Shuffle, AI case summary, DFIR-IRIS</span><span lang="th">Shuffle, AI สรุปเคส, DFIR-IRIS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="kicker">// selected work</div><h2 lang="en">Systems I build and run</h2><h2 lang="th">ระบบที่สร้างและดูแลอยู่จริง</h2></div>
+        <p lang="en">Each case study covers the problem, the approach, measurable outcomes and lessons learned.</p>
+        <p lang="th">แต่ละ case study เล่าปัญหา แนวทาง ผลลัพธ์ที่วัดได้ และสิ่งที่ได้เรียนรู้</p>
+      </div>
+      <div class="projects" id="projects">
+        <a class="project" href="project.html?id=soc">
+          <div class="p-meta"><span>SOC automation</span><em>Production</em></div>
+          <h3>SOC triage pipeline</h3>
+          <p lang="en">Wazuh, FortiWeb and M365 alerts flow through Shuffle to Cortex, which checks each IOC against several threat intel sources. An on-prem LLM drafts an advisory summary before the case opens in DFIR-IRIS, cutting manual alert sorting.</p>
+          <p lang="th">เชื่อม alert จาก Wazuh, FortiWeb และ M365 ผ่าน Shuffle ให้ Cortex ตรวจ IOC กับ threat intel หลายแหล่ง แล้วให้ LLM ภายในองค์กรสรุปเคสเป็นข้อเสนอแนะก่อนเปิดใน DFIR-IRIS ลดงานคัด alert ด้วยมือ</p>
+          <div class="chips"><span>Wazuh</span><span>FortiWeb</span><span>Shuffle</span><span>Cortex</span><span>DFIR-IRIS</span></div>
+        <span class="more"><span lang="en">Read case study ↗</span><span lang="th">อ่าน case study ↗</span></span></a>
+        <a class="project" href="project.html?id=sso">
+          <div class="p-meta"><span>Identity</span><em>Rolling out</em></div>
+          <h3>Unified SSO with Entra ID</h3>
+          <p lang="en">Moving university applications onto Entra ID over OIDC with enforced MFA, and designing an on-prem secondary IdP for cloud outages.</p>
+          <p lang="th">รวมการยืนยันตัวตนของแอปในมหาวิทยาลัยไปที่ Entra ID ผ่าน OIDC พร้อมบังคับ MFA และกำลังออกแบบ IdP สำรอง on-prem สำหรับกรณีคลาวด์ล่ม</p>
+          <div class="chips"><span>Entra ID</span><span>OIDC</span><span>MFA</span></div>
+        <span class="more"><span lang="en">Read case study ↗</span><span lang="th">อ่าน case study ↗</span></span></a>
+        <a class="project" href="project.html?id=ai">
+          <div class="p-meta"><span>AI platform</span><em>Production</em></div>
+          <h3>University AI Gateway</h3>
+          <p lang="en">On-prem LLM service behind a central proxy, with models, quotas and access controlled in one place.</p>
+          <p lang="th">ให้บริการ LLM ภายในองค์กรผ่าน proxy กลาง ควบคุมโควตา โมเดล และการเข้าถึงได้จากจุดเดียว</p>
+          <div class="chips"><span>LiteLLM</span><span>vLLM</span><span>LibreChat</span></div>
+        <span class="more"><span lang="en">Read case study ↗</span><span lang="th">อ่าน case study ↗</span></span></a>
+        <a class="project" href="project.html?id=pqc">
+          <div class="p-meta"><span>Cryptography</span><em>In use</em></div>
+          <h3>Post-quantum admin VPN</h3>
+          <p lang="en">A dedicated OpenVPN for administrators with hybrid ML-KEM key exchange, separate from the university-wide user VPN.</p>
+          <p lang="th">OpenVPN สำหรับผู้ดูแลระบบโดยเฉพาะ ใช้ hybrid key exchange แบบ ML-KEM และแยกจาก VPN ที่ใช้ทั้งมหาวิทยาลัย</p>
+          <div class="chips"><span>ML-KEM</span><span>OpenSSL</span><span>OpenVPN</span></div>
+        <span class="more"><span lang="en">Read case study ↗</span><span lang="th">อ่าน case study ↗</span></span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCE ================= -->
+  <section id="experience">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="kicker">// experience</div><h2 lang="en">Work across the whole stack</h2><h2 lang="th">งานที่ครอบคลุมทั้ง stack</h2></div>
+      </div>
+      <div class="timeline">
+        <div class="job now">
+          <div class="when">2019 — <span lang="en">Present</span><span lang="th">ปัจจุบัน</span></div>
+          <div>
+            <h3>Computer System Analyst</h3>
+            <div class="org"><span lang="en">Digital Infrastructure Division</span><span lang="th">ฝ่ายโครงสร้างพื้นฐานดิจิทัล</span> · Center for Digital Innovation, Walailak University</div>
+            <ul lang="en">
+              <li>Run hybrid infrastructure for ~20,000 users, including Proxmox clusters and backup.</li>
+              <li>Built the SOC triage pipeline and wired threat intelligence into alerting.</li>
+              <li>Run Sangfor Cyber Command (NDR) and Sangfor EDR agents end to end: agent rollout, console administration, alert investigation and response, and coordinating remediation with the departments that own the servers.</li>
+              <li>Administer Active Directory, Microsoft 365 and Google Workspace: accounts, security policies and detection of account attacks.</li>
+              <li>Operate email security gateways (Proxmox Mail Gateway, FortiMail, Trend Micro Deep Discovery Email Inspector) filtering spam, phishing and malware, with logs fed into Wazuh.</li>
+              <li>Operate the FortiWeb WAF that fronts every server under the university's WAF-first policy: per-application policies, false-positive tuning and Wazuh detection rules for web attacks.</li>
+              <li>Maintain 250+ university WordPress sites and 2 Moodle LMS sites: updates, hardening and incident response.</li>
+              <li>Co-led the move of production deployments from webhooks to GitHub Actions on self-hosted runners across PHP (Laravel, Yii2, Yii1, CodeIgniter 2), Python, Next.js and .NET Core, owning security and operations: CodeQL, Dependabot and npm audit, least-privilege tokens, deploy confirmation and locks, rollback snapshots, zero-downtime reloads and post-deploy health checks.</li>
+              <li>Expanding SSO and designing a secondary IdP for service continuity.</li>
+              <li>Deployed and operate the internal AI platform, including procurement and technical specifications.</li>
+            </ul>
+            <ul lang="th">
+              <li>ดูแลโครงสร้างพื้นฐานแบบผสมสำหรับผู้ใช้ราว 20,000 คน รวมถึง Proxmox cluster และระบบ backup</li>
+              <li>พัฒนา SOC triage pipeline และเชื่อม threat intelligence เข้ากับการแจ้งเตือน</li>
+              <li>ดูแล Sangfor Cyber Command (NDR) และ EDR agent ของ Sangfor ครบวงจร ตั้งแต่ติดตั้ง agent ดูแล console ตรวจสอบและรับมือ alert จนถึงประสานงานกับหน่วยงานเจ้าของ server ให้แก้ไขเมื่อพบภัยคุกคาม</li>
+              <li>ดูแลระบบ Active Directory, Microsoft 365 และ Google Workspace ของมหาวิทยาลัย ทั้งบัญชีผู้ใช้ นโยบายความปลอดภัย และการตรวจจับการโจมตีบัญชี</li>
+              <li>ดูแล email security gateway หลายผลิตภัณฑ์ ได้แก่ Proxmox Mail Gateway, FortiMail และ Trend Micro Deep Discovery Email Inspector (DDEI) กรอง spam, phishing และ malware ก่อนถึงกล่องจดหมาย และส่ง log เข้า Wazuh</li>
+              <li>ดูแล WAF (FortiWeb) ซึ่งเป็นด่านหน้าตามนโยบายที่ทุก server ต้องวางอยู่หลัง WAF ทั้งการตั้ง policy ต่อระบบ ปรับลด false positive และเขียน rule ใน Wazuh เพื่อตรวจจับการโจมตีเว็บ</li>
+              <li>ดูแลเว็บไซต์ WordPress ของหน่วยงานกว่า 250 เว็บ และระบบ LMS (Moodle) 2 site ทั้งการอัปเดต hardening และการรับมือเมื่อถูกโจมตี</li>
+              <li>ร่วมย้ายการ deploy ขึ้น production server จาก webhook ไปเป็น GitHub Actions บน self-hosted runner ครอบคลุม PHP (Laravel, Yii2, Yii1, CodeIgniter 2), Python, Next.js และ .NET Core รับผิดชอบด้าน security และ operation: CodeQL, Dependabot และ npm audit, สิทธิ์ token ขั้นต่ำ, ยืนยันและกันการ deploy ซ้อน, snapshot สำหรับ rollback, reload แบบไม่มี downtime และ health check หลัง deploy</li>
+              <li>ขยาย SSO และออกแบบ IdP สำรองเพื่อความต่อเนื่องของบริการ</li>
+              <li>ติดตั้งและดูแลแพลตฟอร์ม AI ภายใน รวมถึงงานจัดซื้อและเอกสารข้อกำหนด</li>
+            </ul>
+          </div>
+        </div>
+        <div class="job">
+          <div class="when">2012 — 2019</div>
+          <div>
+            <h3>Computer System Analyst</h3>
+            <div class="org"><span lang="en">Application Solutions Division</span><span lang="th">ฝ่ายแอปพลิเคชันโซลูชัน</span> · Center for Digital Innovation, Walailak University</div>
+            <ul lang="en">
+              <li>Developed university information systems in ASP.NET (VB.NET, C#) and PHP, mainly on CodeIgniter 2.</li>
+              <li>Designed and maintained MySQL, MariaDB and Oracle databases.</li>
+            </ul>
+            <ul lang="th">
+              <li>พัฒนาระบบสารสนเทศของมหาวิทยาลัยด้วย ASP.NET (VB.NET, C#) และ PHP โดยใช้ CodeIgniter 2 เป็นหลัก</li>
+              <li>ออกแบบและดูแลฐานข้อมูล MySQL, MariaDB และ Oracle</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TOOLKIT ================= -->
+  <section id="toolkit">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="kicker">// toolkit</div><h2 lang="en">Tools I use every day</h2><h2 lang="th">เครื่องมือที่ใช้งานประจำ</h2></div>
+      </div>
+      <div class="toolkit">
+        <div class="tool"><h3>Detection &amp; SOC</h3><ul><li>Wazuh</li><li>Sangfor Cyber Command</li><li>FortiWeb</li><li>MISP</li><li>OpenCTI</li><li>Cortex</li><li>Shuffle</li><li>DFIR-IRIS</li></ul></div>
+        <div class="tool"><h3>Identity &amp; Email</h3><ul><li>Active Directory</li><li>Microsoft Entra ID</li><li>Microsoft 365</li><li>Google Workspace</li><li>OIDC / SAML</li><li>Proxmox Mail Gateway</li><li>FortiMail</li><li>Trend Micro DDEI</li></ul></div>
+        <div class="tool"><h3>Infrastructure &amp; DevSecOps</h3><ul><li>Proxmox VE</li><li>Proxmox Backup Server</li><li>NAKIVO</li><li>Linux</li><li>GitHub Actions</li><li>CodeQL / Dependabot</li></ul></div>
+        <div class="tool"><h3>Platforms</h3><ul><li>LiteLLM / vLLM</li><li>LibreChat</li><li>WordPress + WP-CLI</li><li>Moodle</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CREDENTIALS ================= -->
+  <section id="credentials">
+    <div class="wrap">
+      <div class="sec-head">
+        <div><div class="kicker">// credentials</div><h2 lang="en">Verifiable certifications</h2><h2 lang="th">ใบรับรองที่ตรวจสอบได้</h2></div>
+        <p lang="en">Click a card to verify the badge on Credly.</p>
+        <p lang="th">กดที่การ์ดเพื่อตรวจสอบ badge บน Credly</p>
+      </div>
+      <div class="certs">
+        <a class="cert" href="https://www.credly.com/badges/01ea2f0c-3877-4c5d-abf0-bf9d9d6e9245" target="_blank" rel="noopener"><small>ISC2</small><b>Certified in Cybersecurity</b><span>Verify ↗</span></a>
+        <a class="cert" href="https://www.credly.com/badges/c00db097-1e31-4a12-9d7c-3b9c3dde2f5a" target="_blank" rel="noopener"><small>CompTIA</small><b>CySA+</b><span>Verify ↗</span></a>
+        <a class="cert" href="https://www.credly.com/badges/a20a667c-9a74-4920-88e8-deb84bd6fcdf" target="_blank" rel="noopener"><small>CompTIA</small><b>PenTest+</b><span>Verify ↗</span></a>
+        <a class="cert" href="https://www.credly.com/badges/f068c855-8dc6-4a93-802b-3c460cb3f99c" target="_blank" rel="noopener"><small>CompTIA</small><b>Cloud+</b><span>Verify ↗</span></a>
+        <!-- CEH: ใส่ลิงก์ badge ของ EC-Council (ASPEN) แทน div นี้เมื่อมี -->
+        <div class="cert"><small>EC-Council</small><b>Certified Ethical Hacker</b><span>Verification on request</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact">
+        <div>
+          <div class="kicker">// contact</div>
+          <h2 lang="en">Let's talk systems<br>and security</h2><h2 lang="th">คุยเรื่องระบบ<br>และความปลอดภัย</h2>
+          <p lang="en">Happy to exchange notes on SOC automation, identity and running infrastructure in higher education.</p>
+          <p lang="th">ยินดีแลกเปลี่ยนเรื่อง SOC automation, identity และการดูแลโครงสร้างพื้นฐานในสถาบันการศึกษา</p>
+          <a class="btn primary" href="mailto:wichukorn.dandecha@gmail.com?subject=Portfolio%20inquiry"><span lang="en">Send email ↗</span><span lang="th">ส่งอีเมล ↗</span></a>
+        </div>
+        <div class="links">
+          <a href="mailto:wichukorn.dandecha@gmail.com">Email <span>wichukorn.dandecha@gmail.com</span></a>
+          <a href="https://www.linkedin.com/in/wichukorn-dandecha/">LinkedIn <span>↗</span></a>
+          <a href="https://www.credly.com/users/wichukorn-dandecha/badges">Credly <span>↗</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>© 2026 Wichukorn Dandecha</span><span class="mono">collect · detect · enrich · respond</span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Theme toggle ---------- */
+const root=document.documentElement, themeBtn=document.getElementById('themeBtn');
+function setTheme(t){root.dataset.theme=t;themeBtn.textContent=t==='dark'?'☀ Light':'☾ Dark';
+  document.querySelector('meta[name=theme-color]').content=t==='dark'?'#070D1A':'#F3F6FB';
+  try{localStorage.setItem('theme',t)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem('theme')}catch(e){}
+setTheme(saved||'dark');
+themeBtn.addEventListener('click',()=>setTheme(root.dataset.theme==='dark'?'light':'dark'));
+
+/* ---------- Language toggle (EN default, TH optional; ?lang=th works too) ---------- */
+const langBtn=document.getElementById('langBtn');
+function setLang(l){root.lang=l;langBtn.textContent=l==='en'?'TH':'EN';try{localStorage.setItem('lang',l)}catch(e){}}
+let qLang=new URLSearchParams(location.search).get('lang'),savedLang=null;
+try{savedLang=localStorage.getItem('lang')}catch(e){}
+setLang(['en','th'].includes(qLang)?qLang:(savedLang==='th'?'th':'en'));
+langBtn.addEventListener('click',()=>setLang(root.lang==='en'?'th':'en'));
+
+/* ---------- Card glow ตามตำแหน่งเมาส์ ---------- */
+document.querySelectorAll('.project').forEach(c=>c.addEventListener('pointermove',e=>{
+  const r=c.getBoundingClientRect();c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');}));
+
+/* ---------- SOC console: พิมพ์ log วนซ้ำ (ข้อมูลจำลอง, IP จาก TEST-NET) ---------- */
+const script=[
+  ['wazuh','rule 5712 · sshd brute force · src 203.0.113.44',''],
+  ['cortex','203.0.113.44 → AbuseIPDB 100 · MISP scanner feed',''],
+  ['triage','severity escalated to <span class="hi">HIGH</span>',''],
+  ['ai','summary: brute force from a known scanner · recommend block','ok'],
+  ['fortiweb','sqli signature · /api/login · src 198.51.100.7',''],
+  ['cortex','MISP no match · OpenCTI / DShield checked',''],
+  ['triage','severity <span class="cr">CRITICAL</span> · dedup ok',''],
+  ['iris','alert #1042 opened · IOC + raw log attached','ok'],
+];
+const log=document.getElementById('log');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const pad=n=>String(n).padStart(2,'0');
+function stamp(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function setMeters(a,b,c){[[a,'m1'],[b,'m2'],[c,'m3']].forEach(([v,id])=>{
+  document.getElementById(id).style.width=v+'%';document.getElementById(id+'v').textContent=v+'%';});}
+
+async function typeLine(src,html,cls){
+  const row=document.createElement('div');
+  row.innerHTML='<span class="ts">'+stamp()+'</span> <span class="src">['+src.padEnd(8)+']</span> <span class="msg'+(cls?' '+cls:'')+'"></span>';
+  log.appendChild(row);
+  const msg=row.querySelector('.msg'), caret=document.createElement('span');caret.className='caret';
+  if(reduce){msg.innerHTML=html;return}
+  row.appendChild(caret);
+  // พิมพ์ทีละตัวอักษรแล้วค่อยใส่ HTML สีตอนจบบรรทัด
+  const plain=html.replace(/<[^>]+>/g,'');
+  for(const ch of plain){msg.textContent+=ch;await sleep(14)}
+  msg.innerHTML=html;caret.remove();await sleep(380);
+}
+async function run(){
+  let i=0;
+  while(true){
+    if(log.children.length>=9||i===0){log.innerHTML='';setMeters(0,0,0);await sleep(200)}
+    for(const [s,h,c] of script){await typeLine(s,h,c);i++;
+      setMeters(Math.min(94,i*12),Math.min(71,i*9),Math.max(8,30-i*3));}
+    if(reduce)break;
+    await sleep(2600);log.innerHTML='';i=0;
+  }
+}
+// เริ่มเมื่อเลื่อนมาเห็น console
+new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){run();o.disconnect()}},{threshold:.3})
+  .observe(document.getElementById('console'));
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Case study | Wichukorn Dandecha</title>
+<meta name="theme-color" content="#070D1A">
+<meta name="description" content="Case studies: SOC triage pipeline, SSO, AI gateway และ post-quantum โดย Wichukorn Dandecha">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Case study | Wichukorn Dandecha">
+<meta property="og:description" content="Case studies: SOC triage pipeline, SSO, AI gateway และ post-quantum โดย Wichukorn Dandecha">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070D1A'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='26' font-weight='700' fill='%232F6FE0' text-anchor='middle'%3EWD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070D1A;--bg-2:#0B1426;--surface:rgba(18,30,54,.62);--surface-solid:#101B31;--line:rgba(140,170,220,.14);--line-strong:rgba(140,170,220,.28);
+  --text:#E8EEF8;--muted:#8C9AB3;--dim:#5F6D86;--accent:#6EA8FF;--accent-2:#43D9C3;--warn:#F5B84C;--ok:#5BD6A0;--glow:rgba(110,168,255,.18);
+  --display:"Sora","IBM Plex Sans Thai",system-ui,sans-serif;--body:"IBM Plex Sans Thai","Sora",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+:root[data-theme="light"]{--bg:#F3F6FB;--bg-2:#E9EEF6;--surface:rgba(255,255,255,.78);--surface-solid:#fff;--line:rgba(20,40,80,.11);--line-strong:rgba(20,40,80,.22);
+  --text:#0E1A2E;--muted:#51607A;--dim:#7B879C;--accent:#2F6FE0;--accent-2:#0E9F8C;--glow:rgba(47,111,224,.12)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--text);font:16.5px/1.75 var(--body);-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(900px 520px at 85% -10%,var(--glow),transparent 60%),
+  linear-gradient(var(--line) 1px,transparent 1px) 0 0/56px 56px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/56px 56px;
+  mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.3) 35%,transparent 70%)}
+a{color:inherit}:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px}
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
+nav{display:flex;align-items:center;gap:10px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;font:600 15px var(--display)}
+.logo i{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:13px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#04101F;font-weight:700}
+.back{color:var(--muted);text-decoration:none;font-size:14.5px;padding:8px 12px;border-radius:8px}.back:hover{color:var(--text);background:var(--surface)}
+.icon-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:9px;height:36px;padding:0 12px;font:500 13.5px var(--body);cursor:pointer}
+
+.crumb{font:500 13px var(--mono);color:var(--dim);margin:56px 0 20px}.crumb a{text-decoration:none}.crumb a:hover{color:var(--accent)}
+.head{display:grid;grid-template-columns:1fr 320px;gap:48px;align-items:end;padding-bottom:48px;border-bottom:1px solid var(--line)}
+.badge{display:inline-flex;gap:8px;align-items:center;font:500 12.5px var(--mono);color:var(--accent-2);border:1px solid var(--line-strong);background:var(--surface);padding:5px 11px;border-radius:999px}
+.badge b{width:7px;height:7px;border-radius:50%;background:currentColor}
+h1{font:600 clamp(36px,5.4vw,62px)/1.04 var(--display);letter-spacing:-.035em;margin:18px 0 18px}
+.summary{font-size:19px;color:var(--muted);margin:0;max-width:36em}
+.facts{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:6px 20px}
+.facts div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.facts div:last-child{border:0}.facts dt{color:var(--dim)}.facts dd{margin:0;text-align:right;font-weight:500}
+@media(max-width:860px){.head{grid-template-columns:1fr}}
+
+/* Architecture diagram */
+.arch{margin:48px 0;border:1px solid var(--line-strong);border-radius:18px;background:linear-gradient(180deg,#0C1629,#08101F);padding:28px;overflow-x:auto;color:#DCE6F7}
+:root[data-theme="light"] .arch{background:linear-gradient(180deg,#fff,#F2F5FA);color:var(--text)}
+.arch-title{font:500 12.5px var(--mono);color:#7F8FAD;margin-bottom:22px;display:flex;justify-content:space-between}
+.nodes{display:flex;align-items:stretch;min-width:720px}
+.node{flex:1;border:1px solid rgba(140,170,220,.22);border-radius:12px;padding:16px;background:rgba(110,168,255,.05)}
+.node small{font:500 11.5px var(--mono);color:var(--accent)}
+.node b{display:block;font:600 16px var(--display);margin:6px 0 4px}
+.node span{font-size:13.5px;color:#8C9AB3}
+.arrow{flex:0 0 44px;display:grid;place-items:center;color:var(--accent);font:18px var(--mono);opacity:.8}
+/* Conceptual SOC diagram (ไม่มี IP / hostname / version / port โดยตั้งใจ) */
+.dg{display:block;width:100%;min-width:760px;height:auto}
+.dg .bx{fill:rgba(110,168,255,.06);stroke:rgba(140,170,220,.32);stroke-width:1}
+.dg .bx.core{fill:rgba(110,168,255,.12);stroke:var(--accent)}
+.dg .bx.intel{fill:rgba(67,217,195,.07);stroke:var(--accent-2);stroke-dasharray:0}
+.dg .bx.human{fill:rgba(245,184,76,.08);stroke:var(--warn)}
+.dg .band{fill:none;stroke:rgba(140,170,220,.35);stroke-dasharray:4 4}
+.dg .k{font:500 10.5px var(--mono);fill:var(--accent);letter-spacing:.04em}
+.dg .t{font:600 15px var(--display);fill:currentColor}
+.dg .d{font:400 12px var(--body);fill:#8C9AB3}
+:root[data-theme="light"] .dg .d{fill:var(--muted)}
+.dg .alert{stroke:var(--warn);stroke-width:2;fill:none}
+.dg .share{stroke:var(--accent-2);stroke-width:1.6;fill:none;stroke-dasharray:5 4}
+.dg .lg{font:500 11px var(--mono);fill:#7F8FAD}
+.dg-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font:500 12px var(--mono);color:#7F8FAD}
+.dg-legend i{display:inline-block;width:22px;height:0;border-top:2px solid var(--warn);vertical-align:middle;margin-right:8px}
+.dg-legend i.s{border-top:2px dashed var(--accent-2)}
+.dg-legend i.h{border:1px solid var(--warn);height:10px;width:14px;border-radius:3px;background:rgba(245,184,76,.12)}
+
+/* Body */
+.layout{display:grid;grid-template-columns:200px 1fr;gap:56px;padding:24px 0 80px}
+.toc{display:block;height:auto;position:sticky;top:100px;align-self:start;font-size:14px}
+.toc a{display:block;padding:7px 0 7px 14px;border-left:1px solid var(--line);color:var(--muted);text-decoration:none}
+.toc a:hover,.toc a.on{color:var(--text);border-color:var(--accent)}
+article section{padding:0 0 48px}
+article h2{font:600 28px var(--display);letter-spacing:-.02em;margin:0 0 14px}
+article p{color:var(--muted);max-width:40em;margin:0 0 14px}
+.steps{list-style:none;padding:0;margin:20px 0 0;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:0 0 22px 52px;color:var(--muted)}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  font:600 14px var(--mono);color:var(--accent);border:1px solid var(--line-strong);background:var(--surface)}
+.steps b{display:block;color:var(--text);font-weight:600}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.out{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:22px}
+.out b{display:block;font:600 30px var(--display);letter-spacing:-.02em}
+.out span{font-size:14px;color:var(--muted)}
+@media(max-width:700px){.outcomes{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font:500 12.5px var(--mono);padding:5px 10px;border-radius:7px;border:1px solid var(--line);color:var(--muted);background:var(--bg-2)}
+.note{border-left:3px solid var(--warn);background:var(--surface);border-radius:0 12px 12px 0;padding:16px 20px;color:var(--muted);max-width:40em}
+.note b{color:var(--text)}
+mark.todo{background:rgba(245,184,76,.16);color:var(--warn);padding:1px 6px;border-radius:5px;font:500 .9em var(--mono)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.toc{display:none}}
+
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line);padding:40px 0 70px}
+.pager a{border:1px solid var(--line);border-radius:14px;padding:20px 22px;text-decoration:none;background:var(--surface);transition:border-color .2s}
+.pager a:hover{border-color:var(--accent)}
+.pager small{display:block;color:var(--dim);font:500 12.5px var(--mono);margin-bottom:6px}
+.pager b{font:600 18px var(--display)}
+.pager .next{text-align:right}
+.rise{opacity:0;transform:translateY(14px);animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.rise{animation:none;opacity:1;transform:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header><nav class="wrap">
+  <a class="logo" href="index.html"><i>WD</i>BallCS</a>
+  <a class="back" id="backLink" href="index.html#work">← All work</a>
+  <button class="icon-btn" id="langBtn" type="button" aria-label="Switch language / เปลี่ยนภาษา">TH</button>
+  <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle light/dark theme">☀ Light</button>
+</nav></header>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* =========================================================
+   ข้อมูลโปรเจกต์ทั้งหมดอยู่ตรงนี้ — เพิ่มโปรเจกต์ใหม่ = เพิ่ม object ใหม่
+   แต่ละโปรเจกต์มีเนื้อหา 2 ภาษาใน en / th (id, title, category, status, stack ใช้ร่วมกัน)
+   ใช้ TODO('...') สำหรับส่วนที่ยังต้องใส่ข้อมูลจริง
+   ========================================================= */
+const TODO = t => `<mark class="todo">${t}</mark>`;
+const PROJECTS = [
+{
+  id:'soc', title:'SOC triage pipeline', category:'SOC automation', status:'Production',
+  diagram:lang=>socDiagram(lang),
+  stack:['Wazuh','FortiWeb','Shuffle','Cortex','MISP','OpenCTI','DFIR-IRIS','Python','LLM'],
+  en:{
+    summary:'Pull alerts from several sources into one pipeline, enrich them with threat intel automatically, and pass on only the cases a human should look at.',
+    facts:{'Role':'Design & build','Period':'Oct 2026 –','Scope':'~20,000 users'},
+    arch:[['Source','Wazuh + FortiWeb + M365','agents, WAF, identity'],['Detect','Custom rules','threshold + dedup'],['Enrich','Cortex','MISP · OpenCTI · AbuseIPDB'],['Summarize','Local LLM','advisory only'],['Case','DFIR-IRIS','analyst decides']],
+    problem:'Wazuh and FortiWeb produced a high volume of alerts, mostly scanners and false positives. The team spent its time sorting by hand while real incidents could be buried.',
+    approach:[
+      ['Tune at the source','Wrote custom rules and adjusted severity levels to cut duplicate alerts before they enter the pipeline.'],
+      ['Enrich automatically','Shuffle extracts IOCs and sends them to Cortex, which checks MISP, OpenCTI, AbuseIPDB, DShield and GeoIP in parallel. Repeats within a time window merge into one case.'],
+      ['AI summarizes, it does not decide','An on-prem LLM summarizes the event, impact and MITRE technique. Alert data is fenced off from instructions to resist prompt injection, and nothing leaves the organization.'],
+      ['Prioritize','Combine enrichment results with asset criticality to set severity.'],
+      ['Humans decide','Every case opens in DFIR-IRIS with IOCs and the raw log. Blocking an IP or disabling an account is done by an analyst after reviewing the evidence.'],
+    ],
+    outcomes:[['~95%','fewer alerts forwarded to SOAR after threshold tuning (≈75k → 3.6k per day)'],['5','threat intel sources checked per alert']],
+    lessons:'Enrichment only helps when the feeds are curated. Alerts that need no immediate action, such as vulnerability scan results, belong in patch management rather than the triage queue. And an LLM summary is only as good as the evidence it receives: leave out key fields and it guesses.',
+    security:'No real rules, hostnames or IP addresses from the university appear on this page; all examples are simulated. Alert data goes only to the on-prem LLM, and API keys are kept out of the code.'
+  },
+  th:{
+    summary:'รวม alert จากหลายแหล่งเข้าสู่ pipeline เดียว เติมบริบทจาก threat intel อัตโนมัติ แล้วส่งเฉพาะเคสที่ควรให้คนดูต่อ',
+    facts:{'บทบาท':'ออกแบบและพัฒนา','ช่วงเวลา':'ต.ค. 2026 –','ขอบเขต':'ผู้ใช้ ~20,000 คน'},
+    arch:[['Source','Wazuh + FortiWeb + M365','agents, WAF, identity'],['Detect','Custom rules','threshold + dedup'],['Enrich','Cortex','MISP · OpenCTI · AbuseIPDB'],['Summarize','Local LLM','advisory only'],['Case','DFIR-IRIS','analyst ตัดสินใจ']],
+    problem:'alert จาก Wazuh และ FortiWeb เข้ามาปริมาณมาก ส่วนใหญ่เป็น scanner และ false positive ทำให้เวลาของทีมหมดไปกับการคัดกรองด้วยมือ ขณะที่เหตุการณ์จริงอาจถูกกลบ',
+    approach:[
+      ['ปรับ rule ที่ต้นทาง','เขียน custom rule และปรับระดับความรุนแรงเพื่อลด alert ซ้ำซ้อนก่อนเข้าสู่ pipeline'],
+      ['เติมบริบทอัตโนมัติ','Shuffle ดึง IOC จาก alert ส่งให้ Cortex ตรวจพร้อมกันหลายแหล่ง (MISP, OpenCTI, AbuseIPDB, DShield, GeoIP) และรวม alert ซ้ำในช่วงเวลาเดียวกันเป็นเคสเดียว'],
+      ['ให้ AI ช่วยสรุป ไม่ใช่ตัดสิน','LLM ที่รันภายในองค์กรสรุปเหตุการณ์ ผลกระทบ และ MITRE technique เป็นภาษาไทย แยกข้อมูล alert ออกจากคำสั่งเพื่อกัน prompt injection และไม่มีข้อมูลออกนอกองค์กร'],
+      ['จัดลำดับความสำคัญ','ใช้ผลการ enrich ร่วมกับความสำคัญของ asset เพื่อตัดสิน severity'],
+      ['คนเป็นผู้ตัดสินใจ','ทุกเคสเปิดใน DFIR-IRIS พร้อม IOC และ log ต้นฉบับ การ block หรือปิดบัญชีทำโดย analyst หลังตรวจหลักฐาน'],
+    ],
+    outcomes:[['~95%','alert ที่ส่งเข้า SOAR ลดลงหลังปรับ threshold (ราว 75k → 3.6k ต่อวัน)'],['5','แหล่ง threat intel ที่ตรวจต่อ alert']],
+    lessons:'การเติมบริบทมีประโยชน์ก็ต่อเมื่อ threat feed ได้รับการคัดคุณภาพ และ alert ที่ไม่ต้องลงมือทำทันที (เช่น ผล vulnerability scan) ควรแยกไปทาง patch management ไม่ใช่ triage queue ส่วน LLM จะสรุปได้ดีเท่าที่หลักฐานใน alert มี ถ้าไม่ส่ง field สำคัญไปด้วยมันจะเดา',
+    security:'ไม่เปิดเผย rule, hostname หรือ IP จริงของมหาวิทยาลัยในหน้านี้ ตัวอย่างทั้งหมดใช้ข้อมูลจำลอง ข้อมูล alert ส่งให้ LLM ภายในองค์กรเท่านั้น และ API key ของแต่ละระบบไม่ถูกเก็บในโค้ด'
+  }
+},
+{
+  id:'sso', title:'Unified SSO with Entra ID', category:'Identity', status:'Rolling out',
+  stack:['Microsoft Entra ID','OIDC','SAML','M365'],
+  en:{
+    summary:'Moving university applications onto Entra ID over OIDC with enforced MFA, and designing an on-prem secondary IdP for cloud outages.',
+    facts:{'Role':'Design & integrate','Period':'2026 –','Apps on SSO':'~10','Protocol':'OIDC / SAML'},
+    arch:[['User','Students / staff','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Next phase','Secondary IdP','on-prem · in design'],['Apps','University apps','OIDC clients']],
+    problem:'Each system had its own user database and passwords, so offboarding was incomplete and MFA could not be enforced. Relying on a single cloud IdP also means every system locks out at once when the cloud goes down.',
+    approach:[
+      ['Inventory apps','Group applications by supported protocol and importance to teaching and learning.'],
+      ['Integrate in waves','Start with low-risk apps and verify claim and group mapping before expanding.'],
+      ['Next: secondary IdP','Designing an on-prem IdP that authenticates against the internal directory with its own MFA, so critical apps such as the LMS stay available during an Entra ID outage without opening an MFA bypass.'],
+    ],
+    outcomes:[['~10','university applications on SSO with MFA']],
+    lessons:'Most problems were not in the protocol but in user records that did not match between applications. Identity matching should start before integration.',
+    security:'Failover must not become an MFA bypass, so the secondary IdP is scoped to the applications that truly need it.'
+  },
+  th:{
+    summary:'ย้ายการยืนยันตัวตนของแอปในมหาวิทยาลัยไปใช้ Entra ID ผ่าน OIDC พร้อมบังคับ MFA และกำลังออกแบบ IdP สำรอง on-prem สำหรับกรณีคลาวด์ล่ม',
+    facts:{'บทบาท':'ออกแบบและ integrate','ช่วงเวลา':'2026 –','แอปที่ใช้ SSO':'~10 ระบบ','Protocol':'OIDC / SAML'},
+    arch:[['User','นักศึกษา / บุคลากร','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Next phase','Secondary IdP','on-prem · กำลังออกแบบ'],['Apps','University apps','OIDC clients']],
+    problem:'แต่ละระบบมีฐานข้อมูลผู้ใช้และรหัสผ่านของตัวเอง ทำให้ offboarding ไม่ทั่วถึงและบังคับ MFA ไม่ได้ อีกทั้งถ้าพึ่ง IdP บนคลาวด์เพียงตัวเดียว เมื่อคลาวด์ล่มทุกระบบจะเข้าไม่ได้พร้อมกัน',
+    approach:[
+      ['สำรวจแอป','จัดกลุ่มแอปตาม protocol ที่รองรับและความสำคัญต่อการเรียนการสอน'],
+      ['Integrate แบบเป็นระลอก','เริ่มจากแอปความเสี่ยงต่ำ ตรวจ claim mapping และ group ก่อนขยายผล'],
+      ['ขั้นถัดไป: IdP สำรอง','กำลังออกแบบ IdP on-prem ที่ตรวจกับ directory ภายในโดยตรง และมี MFA ของตัวเอง เพื่อให้แอปวิกฤต (เช่น LMS) ยังใช้งานได้เมื่อ Entra ID ล่ม โดยไม่เปิดช่องให้ข้าม MFA'],
+    ],
+    outcomes:[['~10','ระบบของมหาวิทยาลัยที่ใช้ SSO พร้อม MFA แล้ว']],
+    lessons:'ปัญหาส่วนใหญ่ไม่ได้อยู่ที่ protocol แต่อยู่ที่ข้อมูลผู้ใช้ในแต่ละแอปที่ไม่ตรงกัน การทำ identity matching ควรเริ่มก่อนการ integrate',
+    security:'ขั้นตอน failover ต้องไม่กลายเป็นช่องทางข้าม MFA จึงจำกัดขอบเขตของ IdP สำรองให้เหลือเฉพาะแอปที่จำเป็น'
+  }
+},
+{
+  id:'ai', title:'University AI Gateway', category:'AI platform', status:'Production',
+  stack:['LiteLLM','vLLM','LibreChat','Docker','Entra ID'],
+  en:{
+    summary:'LLM service for staff and students through a central gateway, with models, quotas and access controlled in one place.',
+    facts:{'Role':'Deploy & operate','Period':'2026 –','Hosting':'Self-hosted + API'},
+    arch:[['Client','LibreChat','web UI, SSO'],['Gateway','LiteLLM','keys, quota, logging'],['Local','vLLM','on-prem models'],['External','Provider APIs','external models']],
+    problem:'Departments had started using external AI services on their own, so costs were uncontrolled and internal data was at risk of leaking.',
+    approach:[
+      ['One gateway','Every user goes through LiteLLM, so keys, quotas and logs live in one place.'],
+      ['Route by sensitivity','Work involving internal data goes to models served on-prem with vLLM.'],
+      ['Tie to SSO','LibreChat uses university accounts, so permissions and quotas map to individuals.'],
+    ],
+    outcomes:[],
+    lessons:'Setting per-user quotas from day one is far easier than adding limits later.',
+    security:'Prompt content logging is limited under the personal data policy, and internal data is not sent to external providers.'
+  },
+  th:{
+    summary:'ให้บริการ LLM แก่บุคลากรและนักศึกษาผ่าน gateway กลาง ควบคุมโมเดล โควตา และการเข้าถึงได้จากจุดเดียว',
+    facts:{'บทบาท':'ติดตั้งและดูแล','ช่วงเวลา':'2026 –','Hosting':'Self-hosted + API'},
+    arch:[['Client','LibreChat','web UI, SSO'],['Gateway','LiteLLM','keys, quota, logging'],['Local','vLLM','โมเดลในองค์กร'],['External','Provider APIs','โมเดลภายนอก']],
+    problem:'หน่วยงานต่าง ๆ เริ่มใช้บริการ AI ภายนอกกันเอง ทำให้ควบคุมค่าใช้จ่ายไม่ได้และมีความเสี่ยงที่ข้อมูลภายในจะหลุดออกไป',
+    approach:[
+      ['Gateway เดียว','ผู้ใช้ทุกคนเข้าผ่าน LiteLLM เพื่อให้มี key, quota และ log อยู่ที่เดียว'],
+      ['แยกโมเดลตามความอ่อนไหว','งานที่มีข้อมูลภายในส่งไปยังโมเดลที่รันบน vLLM ในองค์กร'],
+      ['ผูกกับ SSO','LibreChat ใช้บัญชีมหาวิทยาลัย จึงผูกสิทธิ์และโควตากับตัวบุคคลได้'],
+    ],
+    outcomes:[],
+    lessons:'การกำหนดโควตาต่อผู้ใช้ตั้งแต่วันแรกง่ายกว่าการมาจำกัดทีหลังมาก',
+    security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล และไม่ส่งข้อมูลภายในไปยังผู้ให้บริการภายนอก'
+  }
+},
+{
+  id:'pqc', title:'Post-quantum admin VPN', category:'Cryptography', status:'In use',
+  stack:['OpenSSL 3','oqs-provider','ML-KEM','OpenVPN','Nginx'],
+  en:{
+    summary:'A dedicated OpenVPN for system administrators using hybrid key exchange (X25519 + ML-KEM), kept separate from the university-wide user VPN.',
+    facts:{'Role':'Design & operate','Period':'2026 –','Users':'Administrators only','Standard':'FIPS 203'},
+    arch:[['Users','Administrators','separate from staff VPN'],['Tunnel','OpenVPN','admin-only access'],['Key exchange','X25519 + ML-KEM','hybrid · OpenSSL 3 + oqs'],['Targets','Admin interfaces','servers, consoles']],
+    problem:'Administrator sessions carry the most sensitive traffic in the university, yet they shared the same remote-access path as everyone else. Traffic encrypted today can also be recorded and decrypted later once quantum computers are ready.',
+    approach:[
+      ['Separate admin access','Administrators use their own OpenVPN, apart from the university-wide FortiClient VPN used by staff and students.'],
+      ['Go hybrid','Pair X25519 with ML-KEM so security never drops below today’s level, even if ML-KEM turns out to be weak.'],
+      ['Start small','A small, known group of administrators makes it safe to adopt new cryptography without risking remote access for the whole university.'],
+    ],
+    outcomes:[],
+    lessons:'Post-quantum migration is easiest where you control both ends of the connection. An admin-only VPN is a good first step before touching services used by everyone.',
+    security:'Service names, addresses and software versions are not disclosed.'
+  },
+  th:{
+    summary:'OpenVPN สำหรับผู้ดูแลระบบโดยเฉพาะ ใช้ hybrid key exchange (X25519 + ML-KEM) และแยกจาก VPN ที่ผู้ใช้ทั้งมหาวิทยาลัยใช้',
+    facts:{'บทบาท':'ออกแบบและดูแล','ช่วงเวลา':'2026 –','ผู้ใช้':'เฉพาะผู้ดูแลระบบ','มาตรฐาน':'FIPS 203'},
+    arch:[['Users','ผู้ดูแลระบบ','แยกจาก VPN ของบุคลากร'],['Tunnel','OpenVPN','ใช้เฉพาะงาน admin'],['Key exchange','X25519 + ML-KEM','hybrid · OpenSSL 3 + oqs'],['Targets','ระบบจัดการ','server, console']],
+    problem:'การเชื่อมต่อของผู้ดูแลระบบเป็นทราฟฟิกที่อ่อนไหวที่สุดในมหาวิทยาลัย แต่เดิมใช้ช่องทาง remote access เดียวกับผู้ใช้ทั่วไป อีกทั้งทราฟฟิกที่เข้ารหัสวันนี้อาจถูกเก็บไว้ถอดรหัสในอนาคตเมื่อ quantum computer พร้อม',
+    approach:[
+      ['แยกช่องทางของ admin','ผู้ดูแลระบบใช้ OpenVPN ของตัวเอง แยกจาก FortiClient VPN ที่บุคลากรและนักศึกษาใช้ทั้งมหาวิทยาลัย'],
+      ['เลือกใช้แบบ hybrid','จับคู่ X25519 กับ ML-KEM ความปลอดภัยจึงไม่ต่ำกว่าเดิมแม้ ML-KEM จะมีจุดอ่อน'],
+      ['เริ่มจากกลุ่มเล็ก','กลุ่มผู้ดูแลระบบที่จำนวนน้อยและรู้จักกันทำให้นำวิทยาการเข้ารหัสใหม่มาใช้ได้ โดยไม่เสี่ยงต่อ remote access ของทั้งมหาวิทยาลัย'],
+    ],
+    outcomes:[],
+    lessons:'การย้ายไป post-quantum ทำได้ง่ายที่สุดในจุดที่เราควบคุมได้ทั้งสองฝั่งของการเชื่อมต่อ VPN สำหรับ admin จึงเป็นจุดเริ่มต้นที่เหมาะ ก่อนขยายไปยังบริการที่ทุกคนใช้',
+    security:'ไม่เปิดเผยชื่อบริการ ที่อยู่ หรือเวอร์ชันซอฟต์แวร์ที่ใช้งานจริง'
+  }
+}];
+
+const UI={
+  en:{back:'← All work',arch:'Architecture diagram',toc:'Contents',problem:'Problem',approach:'Approach',outcome:'Outcomes',lessons:'Lessons learned',note:'Security note',prev:'← Previous',next:'Next →'},
+  th:{back:'← ผลงานทั้งหมด',arch:'แผนภาพสถาปัตยกรรม',toc:'สารบัญ',problem:'ปัญหา',approach:'แนวทาง',outcome:'ผลลัพธ์',lessons:'สิ่งที่ได้เรียนรู้',note:'หมายเหตุด้านความปลอดภัย',prev:'← ก่อนหน้า',next:'ถัดไป →'}
+};
+
+
+/* ---------- Conceptual diagram (SOC) — ตั้งใจไม่ใส่ IP, hostname, version, port, จำนวนเครื่อง ---------- */
+function socDiagram(lang){
+  const L=lang==='th'?{
+    edge:'ทุกบริการอยู่หลัง WAF · ผู้ใช้และ analyst เข้าผ่าน edge เดียว',
+    src:[['SOURCE','Endpoints',['Wazuh agents','EDR / NDR']],['SOURCE','Cloud identity',['M365 · Entra ID']],['SOURCE','WAF & firewall',['log เว็บและเครือข่าย']]],
+    siem:['DETECT','SIEM · Wazuh',['custom rules','กรองตามระดับความรุนแรง']],
+    soar:['ORCHESTRATE','SOAR · Shuffle',['รวม alert ซ้ำ','ส่งต่อตามประเภท']],
+    enr:['ENRICH','Cortex',['MISP · OpenCTI · AbuseIPDB','DShield · GeoIP']],
+    ai:['SUMMARIZE','LLM ในองค์กร',['ให้คำแนะนำเท่านั้น','กัน prompt injection']],
+    cs:['CASE','DFIR-IRIS',['IOC + log ต้นฉบับ','สรุป AI + ผล enrich']],
+    hu:['HUMAN','Analyst ตัดสินใจ',['block · ปิดบัญชี','แจ้งเจ้าของระบบ']],
+    ti:['THREAT INTEL','MISP + OpenCTI',['feed ภายนอก · IOC ที่พบเอง']],
+    s1:'IP ที่ WAF block → แชร์เข้า intel', s2:'indicator → watchlist ใน SIEM',
+    lg:['เส้นทาง alert','การแชร์ threat intel','คนเป็นผู้ตัดสินใจ']
+  }:{
+    edge:'Every service sits behind the WAF · users and analysts come in through one edge',
+    src:[['SOURCE','Endpoints',['Wazuh agents','EDR / NDR']],['SOURCE','Cloud identity',['M365 · Entra ID']],['SOURCE','WAF & firewall',['web + network logs']]],
+    siem:['DETECT','SIEM · Wazuh',['custom rules','severity threshold']],
+    soar:['ORCHESTRATE','SOAR · Shuffle',['dedup','routing by type']],
+    enr:['ENRICH','Cortex',['MISP · OpenCTI · AbuseIPDB','DShield · GeoIP']],
+    ai:['SUMMARIZE','On-prem LLM',['advisory only','prompt-injection guard']],
+    cs:['CASE','DFIR-IRIS',['IOCs + raw log','AI summary + verdicts']],
+    hu:['HUMAN','Analyst decides',['block · disable account','notify system owner']],
+    ti:['THREAT INTEL','MISP + OpenCTI',['external feeds · own IOCs']],
+    s1:'WAF-blocked IPs → shared to intel', s2:'indicators → SIEM watchlists',
+    lg:['Alert path','Threat intel sharing','Human decision point']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 520" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของ SOC pipeline':'Conceptual SOC pipeline diagram'}">
+  <defs>
+    <marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="ms" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${L.src.map((b,i)=>box(10,66+i*104,W,92,b)).join('')}
+  ${box(232,150,W,108,L.siem,'core')}
+  ${box(454,150,W,108,L.soar,'core')}
+  ${box(676,66,W,108,L.ai)}
+  ${box(676,236,W,108,L.enr)}
+  ${box(870,150,W-10,108,L.cs,'core')}
+  ${box(870,300,W-10,108,L.hu,'human')}
+  ${box(232,404,W+222,96,L.ti,'intel')}
+
+  <path class="alert" d="M190,112 C212,112 212,186 230,190" marker-end="url(#ma)"/>
+  <path class="alert" d="M190,216 L230,206" marker-end="url(#ma)"/>
+  <path class="alert" d="M190,320 C212,320 212,226 230,222" marker-end="url(#ma)"/>
+  <path class="alert" d="M412,204 L452,204" marker-end="url(#ma)"/>
+  <path class="alert" d="M634,190 C656,190 652,120 674,120" marker-end="url(#ma)"/>
+  <path class="alert" d="M634,218 C656,218 652,290 674,290" marker-end="url(#ma)"/>
+  <path class="alert" d="M856,120 C866,120 860,186 868,190" marker-end="url(#ma)"/>
+  <path class="alert" d="M856,290 C866,290 860,224 868,220" marker-end="url(#ma)"/>
+  <path class="alert" d="M955,258 L955,298" marker-end="url(#ma)"/>
+
+  <path class="share" d="M766,344 C766,410 720,440 636,446" marker-start="url(#ms)"/>
+  <path class="share" d="M100,362 C100,420 160,452 230,452" marker-end="url(#ms)"/>
+  <path class="share" d="M322,402 L322,262" marker-end="url(#ms)"/>
+  <text class="lg" x="116" y="392">${esc(L.s1)}</text>
+  <text class="lg" x="332" y="388">${esc(L.s2)}</text>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="h"></i>${L.lg[2]}</span></div>`;
+}
+/* ---------- Render ---------- */
+const root=document.documentElement;
+const params=new URLSearchParams(location.search);
+const id=params.get('id')||PROJECTS[0].id;
+const idx=Math.max(0,PROJECTS.findIndex(p=>p.id===id)); const P=PROJECTS[idx];
+const prev=PROJECTS[(idx-1+PROJECTS.length)%PROJECTS.length], next=PROJECTS[(idx+1)%PROJECTS.length];
+document.title=P.title+' | Wichukorn Dandecha';
+let io;
+
+function render(lang){
+  const C=P[lang], T=UI[lang];
+  document.getElementById('backLink').textContent=T.back;
+  const archHTML=C.arch.map((n,i)=>`${i?'<div class="arrow" aria-hidden="true">→</div>':''}
+    <div class="node"><small>${String(i+1).padStart(2,'0')}</small><b>${n[1]}</b><span>${n[2]}</span></div>`).join('');
+  document.getElementById('app').innerHTML=`
+    <div class="crumb"><a href="index.html">home</a> / <a href="index.html#work">work</a> / ${P.id}</div>
+    <div class="head rise">
+      <div><span class="badge"><b></b>${P.category} · ${P.status}</span><h1>${P.title}</h1><p class="summary">${C.summary}</p></div>
+      <dl class="facts">${Object.entries(C.facts).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+    </div>
+    <figure class="arch" style="margin-left:0;margin-right:0" aria-label="${T.arch}">
+      <div class="arch-title"><span>architecture / data flow</span><span>simplified</span></div>
+      ${P.diagram?P.diagram(lang):`<div class="nodes">${archHTML}</div>`}
+    </figure>
+    <div class="layout">
+      <nav class="toc" aria-label="${T.toc}">
+        <a href="#problem">${T.problem}</a><a href="#approach">${T.approach}</a>${C.outcomes.length?`<a href="#outcome">${T.outcome}</a>`:''}<a href="#lessons">${T.lessons}</a><a href="#stack">Stack</a>
+      </nav>
+      <article>
+        <section id="problem"><h2>${T.problem}</h2><p>${C.problem}</p></section>
+        <section id="approach"><h2>${T.approach}</h2><ol class="steps">${C.approach.map(a=>`<li><b>${a[0]}</b>${a[1]}</li>`).join('')}</ol></section>
+        ${C.outcomes.length?`<section id="outcome"><h2>${T.outcome}</h2><div class="outcomes">${C.outcomes.map(o=>`<div class="out"><b>${o[0]}</b><span>${o[1]}</span></div>`).join('')}</div></section>`:''}
+        <section id="lessons"><h2>${T.lessons}</h2><p>${C.lessons}</p>
+          <div class="note"><b>${T.note}</b><br>${C.security}</div></section>
+        <section id="stack"><h2>Stack</h2><div class="chips">${P.stack.map(s=>`<span>${s}</span>`).join('')}</div></section>
+      </article>
+    </div>
+    <div class="pager">
+      <a href="project.html?id=${prev.id}"><small>${T.prev}</small><b>${prev.title}</b></a>
+      <a class="next" href="project.html?id=${next.id}"><small>${T.next}</small><b>${next.title}</b></a>
+    </div>`;
+
+  /* ไฮไลต์สารบัญตามส่วนที่กำลังอ่าน */
+  if(io)io.disconnect();
+  const links=[...document.querySelectorAll('.toc a')];
+  io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(l=>l.classList.toggle('on',l.hash==='#'+e.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('article section').forEach(s=>io.observe(s));
+}
+
+/* Language (ใช้ค่าเดียวกับหน้าแรก, EN เป็นค่าเริ่มต้น) */
+const langBtn=document.getElementById('langBtn');
+function setLang(l){root.lang=l;langBtn.textContent=l==='en'?'TH':'EN';try{localStorage.setItem('lang',l)}catch(e){}render(l)}
+let savedLang=null;try{savedLang=localStorage.getItem('lang')}catch(e){}
+const qLang=params.get('lang');
+setLang(['en','th'].includes(qLang)?qLang:(savedLang==='th'?'th':'en'));
+langBtn.addEventListener('click',()=>setLang(root.lang==='en'?'th':'en'));
+
+/* Theme (ใช้ค่าเดียวกับหน้าแรก) */
+const btn=document.getElementById('themeBtn');
+function setTheme(t){root.dataset.theme=t;btn.textContent=t==='dark'?'☀ Light':'☾ Dark';try{localStorage.setItem('theme',t)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem('theme')}catch(e){}setTheme(saved||'dark');
+btn.addEventListener('click',()=>setTheme(root.dataset.theme==='dark'?'light':'dark'));
+</script>
+</body>
+</html>
