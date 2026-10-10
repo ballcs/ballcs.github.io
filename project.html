@@ -213,11 +213,12 @@ const PROJECTS = [
   diagram:lang=>cicdDiagram(lang),
   stack:['GitHub Actions','Self-hosted runners','CodeQL','Dependabot','npm audit','PM2','Laravel','Yii2 / Yii1','CodeIgniter 2','Python','Next.js','.NET Core'],
   en:{
-    summary:'Moved production deployments from webhooks to GitHub Actions on self-hosted runners across seven frameworks in four languages. I own the security and operations stages.',
-    facts:{'Role':'Security & operations','Stacks':'7 frameworks · 4 languages','Runners':'Self-hosted','Trigger':'push to main / manual'},
+    summary:'When a new system is developed, I build its production server and its deployment pipeline. Deployments moved from webhooks to GitHub Actions on self-hosted runners across seven frameworks in four languages, and I own the security and operations stages.',
+    facts:{'Role':'Server, security & operations','Stacks':'7 frameworks · 4 languages','Runners':'Self-hosted','Trigger':'push to main / manual'},
     arch:[['Commit','GitHub','main branch'],['Scan','CodeQL · Dependabot','code + dependencies'],['Gate','Confirm · lock','least-privilege token'],['Deploy','Self-hosted runner','snapshot first'],['Verify','Health + smoke test','notify every run']],
     problem:'Deployments used to be triggered by webhooks. Anyone holding the webhook secret could deploy, there was no record of who shipped what, nothing was scanned before it reached production, and rolling back meant manual work under pressure.',
     approach:[
+      ['Server and pipeline per system','Each new system gets a production server set up and hardened for it, plus a workflow built from the same pattern, so every deploy behaves the same way.'],
       ['Scan before shipping','CodeQL scans the code and Dependabot watches dependencies in each repository; the pipeline also runs a dependency audit and alerts on critical findings.'],
       ['Least privilege and gates','The workflow token starts with no permissions, manual runs require typed confirmation, and a concurrency lock stops two deploys from racing each other.'],
       ['Safe rollout','The current build is snapshotted before deploying so it can be rolled back, the app is reloaded without downtime, and a health check plus smoke test must pass.'],
@@ -228,11 +229,12 @@ const PROJECTS = [
     security:'No hostnames, paths or repository names are shown here. Secrets live in GitHub environment secrets, never in the workflow files.'
   },
   th:{
-    summary:'ย้ายการ deploy ขึ้น production จาก webhook ไปเป็น GitHub Actions บน self-hosted runner ครอบคลุม 7 framework ใน 4 ภาษา โดยผมรับผิดชอบส่วน security และ operation',
-    facts:{'บทบาท':'Security & operations','Stack':'7 framework · 4 ภาษา','Runner':'Self-hosted','Trigger':'push เข้า main / สั่งเอง'},
+    summary:'เมื่อมีการพัฒนาระบบใหม่ ผมติดตั้ง production server และทำ deployment pipeline ให้ระบบนั้น การ deploy ย้ายจาก webhook ไปเป็น GitHub Actions บน self-hosted runner ครอบคลุม 7 framework ใน 4 ภาษา โดยผมรับผิดชอบส่วน security และ operation',
+    facts:{'บทบาท':'Server, security & operations','Stack':'7 framework · 4 ภาษา','Runner':'Self-hosted','Trigger':'push เข้า main / สั่งเอง'},
     arch:[['Commit','GitHub','main branch'],['Scan','CodeQL · Dependabot','โค้ด + dependency'],['Gate','ยืนยัน · ล็อก','token สิทธิ์ขั้นต่ำ'],['Deploy','Self-hosted runner','snapshot ก่อน'],['Verify','Health + smoke test','แจ้งเตือนทุกครั้ง']],
     problem:'เดิมการ deploy สั่งผ่าน webhook ใครที่มี secret ของ webhook ก็ deploy ได้ ไม่มีบันทึกว่าใคร deploy อะไร ไม่มีการตรวจโค้ดก่อนขึ้น production และการ rollback ต้องทำด้วยมือในสถานการณ์เร่งด่วน',
     approach:[
+      ['server และ pipeline ต่อระบบ','ระบบใหม่ทุกระบบได้ production server ที่ติดตั้งและ hardening ไว้ พร้อม workflow ที่สร้างจากรูปแบบเดียวกัน การ deploy ทุกระบบจึงทำงานเหมือนกัน'],
       ['ตรวจก่อนขึ้นจริง','CodeQL สแกนโค้ด และ Dependabot เฝ้าดู dependency ของแต่ละ repo ใน pipeline ยังรัน dependency audit และแจ้งเตือนเมื่อพบช่องโหว่ระดับ critical'],
       ['สิทธิ์ขั้นต่ำและด่านตรวจ','token ของ workflow เริ่มต้นโดยไม่มีสิทธิ์ การสั่ง deploy เองต้องพิมพ์ยืนยัน และมี concurrency lock กันการ deploy ซ้อนกัน'],
       ['Deploy อย่างปลอดภัย','เก็บ snapshot ของ build ปัจจุบันไว้ก่อน deploy เพื่อ rollback ได้ reload แอปแบบไม่มี downtime และต้องผ่าน health check กับ smoke test'],
