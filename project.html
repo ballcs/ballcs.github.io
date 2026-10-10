@@ -5,11 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Case study | Wichukorn Dandecha</title>
 <meta name="theme-color" content="#070D1A">
-<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, AI gateway and post-quantum admin VPN">
+<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, AI gateway and post-quantum admin VPN">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Case study | Wichukorn Dandecha">
-<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, AI gateway and post-quantum admin VPN">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, AI gateway and post-quantum admin VPN">
+<meta property="og:url" content="https://ballcs.github.io/project.html">
+<meta property="og:image" content="https://ballcs.github.io/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wichukorn Dandecha, Systems &amp; Security Analyst">
+<link rel="canonical" href="https://ballcs.github.io/project.html">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070D1A'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='26' font-weight='700' fill='%232F6FE0' text-anchor='middle'%3EWD%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -238,6 +244,41 @@ const PROJECTS = [
   }
 },
 {
+  id:'exam', title:'High-availability exam platform', category:'Infrastructure', status:'Production',
+  diagram:lang=>examDiagram(lang),
+  stack:['Moodle','Load balancing','Redis','MariaDB MaxScale','MariaDB cluster','FortiWeb','Linux'],
+  en:{
+    summary:'The university runs online exams on Moodle, where thousands of students can start at the same minute. The exam platform runs on a load-balanced web tier with a Redis cache, MaxScale and a 7-node MariaDB cluster, separate from the e-Learning platform.',
+    facts:{'Role':'Operate & scale','Web tier':'4 Moodle nodes','Database':'7-node MariaDB cluster','e-Learning':'separate · 5 web nodes'},
+    arch:[['Users','Students','exam sessions'],['Edge','WAF + load balancer','spread requests'],['Web','Moodle × 4','identical nodes'],['Data','Redis · MaxScale','cache, SQL routing'],['DB','MariaDB × 7','cluster']],
+    problem:'An exam is the worst case for a web application: everyone logs in and opens the same quiz at the same moment, and an outage in the middle of an exam affects grades directly. A single Moodle server cannot absorb that burst.',
+    approach:[
+      ['Scale the web tier out','Four identical Moodle web nodes sit behind a load balancer, so traffic spreads across them and a node can be taken out without stopping the exam.'],
+      ['Move state off the nodes','Sessions and application cache live in Redis and files in shared storage, so a student can land on any node without being logged out.'],
+      ['Cluster the database','MaxScale sits in front of a 7-node MariaDB cluster and routes queries to healthy nodes, so the database is not tied to one server.'],
+      ['Keep exams apart','Online exams run on their own platform, separate from the 5-node e-Learning system, so daily teaching load never competes with an exam.'],
+    ],
+    outcomes:[['4','load-balanced Moodle web nodes for exams'],['7','node MariaDB cluster behind MaxScale'],['2','Moodle platforms kept separate (exam · e-Learning)']],
+    lessons:'Moodle only scales out once state leaves the web nodes: sessions, cache and files must be shared or users get logged out as they move between nodes. And the database, not the web tier, is usually where an exam start first hurts.',
+    security:'Exact capacity figures, hostnames and the internal layout of each tier are not disclosed. Both platforms sit behind the WAF like every other university server.'
+  },
+  th:{
+    summary:'มหาวิทยาลัยใช้ Moodle จัดสอบออนไลน์ ซึ่งนักศึกษานับพันคนอาจเริ่มสอบในนาทีเดียวกัน ระบบสอบจึงทำงานบน web tier ที่ทำ load balance พร้อม Redis cache, MaxScale และ MariaDB cluster 7 node โดยแยกจากระบบ e-Learning',
+    facts:{'บทบาท':'ดูแลและขยายระบบ','Web tier':'Moodle 4 node','Database':'MariaDB cluster 7 node','e-Learning':'แยกระบบ · web 5 node'},
+    arch:[['Users','นักศึกษา','เข้าสอบ'],['Edge','WAF + load balancer','กระจายโหลด'],['Web','Moodle × 4','node เหมือนกัน'],['Data','Redis · MaxScale','cache, SQL routing'],['DB','MariaDB × 7','cluster']],
+    problem:'การสอบเป็นสถานการณ์ที่หนักที่สุดของเว็บแอป เพราะทุกคน login และเปิดข้อสอบเดียวกันพร้อมกัน และถ้าระบบล่มกลางสอบจะกระทบผลสอบโดยตรง Moodle server เครื่องเดียวรับโหลดช่วงนั้นไม่ไหว',
+    approach:[
+      ['ขยาย web tier ออกด้านข้าง','Moodle web server 4 node ที่เหมือนกันอยู่หลัง load balancer โหลดจึงกระจายไปทุก node และถอด node ออกได้โดยไม่ต้องหยุดการสอบ'],
+      ['ย้าย state ออกจาก node','session และ cache อยู่ใน Redis ส่วนไฟล์อยู่ใน storage ที่ใช้ร่วมกัน นักศึกษาจึงถูกส่งไป node ไหนก็ได้โดยไม่หลุดจากระบบ'],
+      ['ทำ cluster ให้ฐานข้อมูล','MaxScale อยู่หน้า MariaDB cluster 7 node และส่ง query ไปยัง node ที่พร้อมทำงาน ฐานข้อมูลจึงไม่ผูกกับเครื่องเดียว'],
+      ['แยกระบบสอบออกมา','ระบบสอบออนไลน์แยกจากระบบ e-Learning (web 5 node) โหลดจากการเรียนการสอนประจำวันจึงไม่แย่งทรัพยากรกับการสอบ'],
+    ],
+    outcomes:[['4','Moodle web node ของระบบสอบที่ทำ load balance'],['7','node ของ MariaDB cluster หลัง MaxScale'],['2','ระบบ Moodle ที่แยกกัน (สอบ · e-Learning)']],
+    lessons:'Moodle จะขยายแบบหลาย node ได้ก็ต่อเมื่อย้าย state ออกจาก web node แล้ว ทั้ง session, cache และไฟล์ต้องใช้ร่วมกัน ไม่อย่างนั้นผู้ใช้จะหลุดเมื่อถูกส่งไปคนละ node และจุดที่รับแรงกระแทกตอนเริ่มสอบก่อนมักเป็นฐานข้อมูล ไม่ใช่ web tier',
+    security:'ไม่เปิดเผยตัวเลขความจุ hostname หรือโครงสร้างภายในของแต่ละชั้น ทั้งสองระบบอยู่หลัง WAF เหมือน server อื่นของมหาวิทยาลัย'
+  }
+},
+{
   id:'ai', title:'University AI Gateway', category:'AI platform', status:'Production',
   stack:['LiteLLM','vLLM','LibreChat','Docker','Entra ID'],
   en:{
@@ -448,6 +489,65 @@ function cicdDiagram(lang){
   </g>
 </svg>
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="f"></i>${L.lg[2]}</span><span><i class="h"></i>${L.lg[3]}</span></div>`;
+}
+
+/* ---------- Conceptual diagram (exam platform) — ไม่มี hostname / capacity / SPOF detail ---------- */
+function examDiagram(lang){
+  const L=lang==='th'?{
+    edge:'ทุก server อยู่หลัง WAF · ระบบสอบแยกจากระบบ e-Learning',
+    us:['USERS','นักศึกษา',['เริ่มสอบพร้อมกัน','โหลดพุ่งช่วงเริ่ม']],
+    lb:['EDGE','WAF + load balancer',['กรองการโจมตี','กระจาย request']],
+    web:['WEB TIER','Moodle × 4',['node เหมือนกันทุกตัว','ถอดออกได้ระหว่างสอบ']],
+    rd:['CACHE','Redis',['session + application cache']],
+    fs:['FILES','Shared storage',['moodledata ใช้ร่วมทุก node']],
+    mx:['SQL PROXY','MaxScale',['ส่ง query ไป node ที่พร้อม']],
+    db:['DATABASE','MariaDB cluster × 7',['ข้อมูลทำซ้ำทุก node']],
+    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['การเรียนการสอนประจำวัน','ไม่แย่งทรัพยากรกับการสอบ']],
+    lg:['เส้นทาง request','state ที่ใช้ร่วมกัน']
+  }:{
+    edge:'Every server sits behind the WAF · exams run apart from e-Learning',
+    us:['USERS','Students',['start the exam together','burst at start time']],
+    lb:['EDGE','WAF + load balancer',['filters attacks','spreads requests']],
+    web:['WEB TIER','Moodle × 4',['identical nodes','drain one mid-exam']],
+    rd:['CACHE','Redis',['sessions + app cache']],
+    fs:['FILES','Shared storage',['moodledata on every node']],
+    mx:['SQL PROXY','MaxScale',['routes to healthy nodes']],
+    db:['DATABASE','MariaDB cluster × 7',['replicated nodes']],
+    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['daily teaching load','never competes with exams']],
+    lg:['Request path','Shared state']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const nodes=(x,y,n)=>Array.from({length:n},(_,i)=>`<rect x="${x+i*16}" y="${y}" width="11" height="11" rx="3" fill="var(--accent)" opacity=".55"/>`).join('');
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 470" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของระบบสอบ':'Conceptual exam platform diagram'}">
+  <defs>
+    <marker id="ea" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="es" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${box(10,150,W,108,L.us)}
+  ${box(232,150,W,108,L.lb,'core')}
+  ${box(454,140,W,128,L.web,'core')}${nodes(574,156,4)}
+  ${box(676,60,W,80,L.rd,'intel')}
+  ${box(676,160,W,80,L.fs,'intel')}
+  ${box(676,270,W,92,L.mx,'core')}
+  ${box(870,270,W-10,100,L.db,'core')}${nodes(884,348,7)}
+  ${box(10,350,W+222,100,L.el)}
+
+  <path class="alert" d="M190,204 L230,204" marker-end="url(#ea)"/>
+  <path class="alert" d="M412,204 L452,204" marker-end="url(#ea)"/>
+  <path class="alert" d="M634,250 C656,250 652,316 674,316" marker-end="url(#ea)"/>
+  <path class="alert" d="M856,316 L868,316" marker-end="url(#ea)"/>
+  <path class="alert" d="M322,258 C322,300 322,330 322,348" marker-end="url(#ea)"/>
+  <path class="share" d="M634,160 C656,160 652,100 674,100" marker-end="url(#es)"/>
+  <path class="share" d="M634,200 L674,200" marker-end="url(#es)"/>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
 }
 /* ---------- Render ---------- */
 const root=document.documentElement;
