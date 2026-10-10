@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Case study | Wichukorn Dandecha</title>
 <meta name="theme-color" content="#070D1A">
-<meta name="description" content="Case studies: SOC triage pipeline, SSO, AI gateway และ post-quantum โดย Wichukorn Dandecha">
+<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, AI gateway and post-quantum admin VPN">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Case study | Wichukorn Dandecha">
-<meta property="og:description" content="Case studies: SOC triage pipeline, SSO, AI gateway และ post-quantum โดย Wichukorn Dandecha">
+<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, AI gateway and post-quantum admin VPN">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070D1A'/%3E%3Ctext x='32' y='41' font-family='Arial,sans-serif' font-size='26' font-weight='700' fill='%232F6FE0' text-anchor='middle'%3EWD%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -197,6 +197,40 @@ const PROJECTS = [
     outcomes:[['~10','ระบบของมหาวิทยาลัยที่ใช้ SSO พร้อม MFA แล้ว']],
     lessons:'ปัญหาส่วนใหญ่ไม่ได้อยู่ที่ protocol แต่อยู่ที่ข้อมูลผู้ใช้ในแต่ละแอปที่ไม่ตรงกัน การทำ identity matching ควรเริ่มก่อนการ integrate',
     security:'ขั้นตอน failover ต้องไม่กลายเป็นช่องทางข้าม MFA จึงจำกัดขอบเขตของ IdP สำรองให้เหลือเฉพาะแอปที่จำเป็น'
+  }
+},
+{
+  id:'cicd', title:'DevSecOps deployment pipeline', category:'DevSecOps', status:'Production',
+  stack:['GitHub Actions','Self-hosted runners','CodeQL','Dependabot','npm audit','PM2','Laravel','Yii2 / Yii1','CodeIgniter 2','Python','Next.js','.NET Core'],
+  en:{
+    summary:'Moved production deployments from webhooks to GitHub Actions on self-hosted runners across seven frameworks in four languages. I own the security and operations stages.',
+    facts:{'Role':'Security & operations','Stacks':'7 frameworks · 4 languages','Runners':'Self-hosted','Trigger':'push to main / manual'},
+    arch:[['Commit','GitHub','main branch'],['Scan','CodeQL · Dependabot','code + dependencies'],['Gate','Confirm · lock','least-privilege token'],['Deploy','Self-hosted runner','snapshot first'],['Verify','Health + smoke test','notify every run']],
+    problem:'Deployments used to be triggered by webhooks. Anyone holding the webhook secret could deploy, there was no record of who shipped what, nothing was scanned before it reached production, and rolling back meant manual work under pressure.',
+    approach:[
+      ['Scan before shipping','CodeQL scans the code and Dependabot watches dependencies in each repository; the pipeline also runs a dependency audit and alerts on critical findings.'],
+      ['Least privilege and gates','The workflow token starts with no permissions, manual runs require typed confirmation, and a concurrency lock stops two deploys from racing each other.'],
+      ['Safe rollout','The current build is snapshotted before deploying so it can be rolled back, the app is reloaded without downtime, and a health check plus smoke test must pass.'],
+      ['Visibility','Every run reports start, success or failure with commit, author and the person who triggered it; on failure the runner collects logs, disk and memory state automatically.'],
+    ],
+    outcomes:[['7','frameworks on one deployment pattern (PHP, Python, Next.js, .NET Core)']],
+    lessons:'Values that users control, such as commit messages or form inputs, must never be pasted straight into a script on a production runner; pass them as environment variables. Checks that only warn are soon ignored, so critical findings should block the deploy. And the safest place to build is not the production server itself.',
+    security:'No hostnames, paths or repository names are shown here. Secrets live in GitHub environment secrets, never in the workflow files.'
+  },
+  th:{
+    summary:'ย้ายการ deploy ขึ้น production จาก webhook ไปเป็น GitHub Actions บน self-hosted runner ครอบคลุม 7 framework ใน 4 ภาษา โดยผมรับผิดชอบส่วน security และ operation',
+    facts:{'บทบาท':'Security & operations','Stack':'7 framework · 4 ภาษา','Runner':'Self-hosted','Trigger':'push เข้า main / สั่งเอง'},
+    arch:[['Commit','GitHub','main branch'],['Scan','CodeQL · Dependabot','โค้ด + dependency'],['Gate','ยืนยัน · ล็อก','token สิทธิ์ขั้นต่ำ'],['Deploy','Self-hosted runner','snapshot ก่อน'],['Verify','Health + smoke test','แจ้งเตือนทุกครั้ง']],
+    problem:'เดิมการ deploy สั่งผ่าน webhook ใครที่มี secret ของ webhook ก็ deploy ได้ ไม่มีบันทึกว่าใคร deploy อะไร ไม่มีการตรวจโค้ดก่อนขึ้น production และการ rollback ต้องทำด้วยมือในสถานการณ์เร่งด่วน',
+    approach:[
+      ['ตรวจก่อนขึ้นจริง','CodeQL สแกนโค้ด และ Dependabot เฝ้าดู dependency ของแต่ละ repo ใน pipeline ยังรัน dependency audit และแจ้งเตือนเมื่อพบช่องโหว่ระดับ critical'],
+      ['สิทธิ์ขั้นต่ำและด่านตรวจ','token ของ workflow เริ่มต้นโดยไม่มีสิทธิ์ การสั่ง deploy เองต้องพิมพ์ยืนยัน และมี concurrency lock กันการ deploy ซ้อนกัน'],
+      ['Deploy อย่างปลอดภัย','เก็บ snapshot ของ build ปัจจุบันไว้ก่อน deploy เพื่อ rollback ได้ reload แอปแบบไม่มี downtime และต้องผ่าน health check กับ smoke test'],
+      ['มองเห็นทุกครั้ง','ทุก run แจ้งสถานะเริ่ม สำเร็จ หรือล้มเหลว พร้อม commit ผู้เขียน และผู้สั่ง เมื่อล้มเหลว runner จะเก็บ log สถานะดิสก์และหน่วยความจำให้อัตโนมัติ'],
+    ],
+    outcomes:[['7','framework ที่ใช้รูปแบบ deploy เดียวกัน (PHP, Python, Next.js, .NET Core)']],
+    lessons:'ค่าที่ผู้ใช้ควบคุมได้ เช่น ข้อความ commit หรือ input ของฟอร์ม ห้ามแทรกลงในสคริปต์บน runner ของ production ตรงๆ ต้องส่งผ่าน environment variable การตรวจที่ทำแค่เตือนจะถูกมองข้ามในไม่ช้า ช่องโหว่ระดับ critical จึงควรหยุดการ deploy และที่ที่ปลอดภัยที่สุดสำหรับการ build ไม่ใช่ตัว production server เอง',
+    security:'ไม่แสดง hostname, path หรือชื่อ repo ในหน้านี้ secret เก็บใน environment secrets ของ GitHub ไม่อยู่ในไฟล์ workflow'
   }
 },
 {
