@@ -365,15 +365,15 @@ const PROJECTS = [
 {
   id:'pentest', title:'Annual penetration testing', category:'Offensive security', status:'Annual',
   diagram:lang=>pentestDiagram(lang),
-  stack:['HexStrike','AI-assisted testing','Recon & scanning','Web & network testing','Manual testing','Wazuh'],
+  stack:['HexStrike','Burp Suite Pro','Recon & scanning','Web & network testing','Manual testing','Wazuh'],
   en:{
-    summary:'Each year I run penetration tests against the university’s own systems. I drive every step and review every result; HexStrike bundles the common tools so the repetitive parts such as recon are quick; I read the results and decide the next step every time, and do any step by hand when a tool is missing. Every finding is tracked until it is fixed and a retest confirms it.',
-    facts:{'Role':'Plan, test & report','Cycle':'Every year','Tooling':'HexStrike','Control':'Human-driven, every step'},
+    summary:'Each year I run penetration tests against the university’s own systems. I drive every step and review every result; HexStrike bundles the common tools so repetitive parts such as recon are quick, and Burp Suite Pro covers the web application work; I stay human-in-the-loop, reading every result and deciding the next step myself, and do any step by hand when a tool is missing. Every finding is tracked until it is fixed and a retest confirms it.',
+    facts:{'Role':'Plan, test & report','Cycle':'Every year','Tooling':'HexStrike','Control':'Human-in-the-loop'},
     arch:[['Scope','Approved targets','rules of engagement'],['Recon','HexStrike','bundled tooling'],['Analyse & decide','Me','read results, run the next step'],['Report','System owners','fix + deadline'],['Retest','Verify the fix','close it out']],
     problem:'Systems change all year and many are built or run by different departments. Without regular, authorised testing, weaknesses would be found by outsiders first. But testing alone is not enough: results that are reported and never fixed add no safety, so the work has to run all the way to a verified fix.',
     approach:[
       ['Agree the scope first','Testing only covers systems and targets approved in advance, with clear rules of engagement, so the work stays inside the university’s own estate.'],
-      ['Drive it step by step','I read the result of each stage and decide the next command myself — the testing is not run on autopilot. HexStrike bundles the common tools so the repetitive work such as recon is fast; where a tool is missing, I do that step by hand.'],
+      ['Stay human-in-the-loop','I read the result of each stage and decide the next command myself — the testing is never run on autopilot. HexStrike bundles the common tools so repetitive work such as recon is fast, and Burp Suite Pro handles the web application testing; where a tool is missing, I do that step by hand.'],
       ['Keep a record per system','Each tested system has its own record of findings, so nothing is lost and progress is visible from discovery to fix.'],
       ['Report to the system owners','Each owner gets a clear report with a severity and a deadline to fix, and I coordinate the remediation rather than just handing over a list.'],
       ['Retest before closing','A finding is only closed after the fix is verified by a retest, so the report reflects real risk, not a to-do list.'],
@@ -384,13 +384,13 @@ const PROJECTS = [
     security:'This page describes the process only. No findings, target systems, tool detail, or results are published, and all testing is on the university’s own authorised systems.'
   },
   th:{
-    summary:'ทุกปีผมทำ penetration testing กับระบบของมหาวิทยาลัยเอง โดยผมเป็นคนสั่งและตรวจผลทุกขั้นตอน ใช้ HexStrike ที่รวมเครื่องมือมาในตัว งานที่ทำซ้ำ เช่น recon จึงเร็ว ผมอ่านผลแล้วตัดสินใจสั่งขั้นถัดไปเองทุกครั้ง และทำเองเมื่อขั้นไหนไม่มีเครื่องมือรองรับ ทุกสิ่งที่ตรวจพบถูกบันทึกและติดตามจนกว่าจะแก้ไขและทดสอบซ้ำผ่าน',
-    facts:{'บทบาท':'วางแผน ทดสอบ และรายงาน','รอบ':'ทุกปี','เครื่องมือหลัก':'HexStrike','การควบคุม':'คนสั่งและตรวจทุกขั้น'},
+    summary:'ทุกปีผมทำ penetration testing กับระบบของมหาวิทยาลัยเอง โดยผมเป็นคนสั่งและตรวจผลทุกขั้นตอน ใช้ HexStrike ที่รวมเครื่องมือมาในตัว งานที่ทำซ้ำ เช่น recon จึงเร็ว และใช้ Burp Suite Pro กับงานฝั่ง web application ผมเป็น human-in-the-loop ตลอด อ่านผลทุกครั้งแล้วตัดสินใจสั่งขั้นถัดไปเอง และทำเองเมื่อขั้นไหนไม่มีเครื่องมือรองรับ ทุกสิ่งที่ตรวจพบถูกบันทึกและติดตามจนกว่าจะแก้ไขและทดสอบซ้ำผ่าน',
+    facts:{'บทบาท':'วางแผน ทดสอบ และรายงาน','รอบ':'ทุกปี','เครื่องมือหลัก':'HexStrike','การควบคุม':'Human-in-the-loop'},
     arch:[['Scope','เป้าหมายที่อนุมัติ','rules of engagement'],['Recon','HexStrike','รวมเครื่องมือในตัว'],['วิเคราะห์ & สั่งต่อ','ผมเอง','อ่านผลแล้วสั่งขั้นถัดไป'],['Report','เจ้าของระบบ','พร้อมกำหนดแก้'],['Retest','ทดสอบซ้ำหลังแก้','ปิดงาน']],
     problem:'ระบบมีการเปลี่ยนแปลงตลอดทั้งปี และหลายระบบดูแลโดยหน่วยงานต่าง ๆ ถ้าไม่มีการทดสอบตามแผนอย่างสม่ำเสมอ จุดอ่อนอาจถูกคนภายนอกพบก่อน แต่แค่ทดสอบอย่างเดียวไม่พอ สิ่งที่ตรวจพบแล้วไม่ได้แก้ก็ไม่ได้ทำให้ปลอดภัยขึ้น งานจึงต้องทำจนถึงการแก้ไขที่ยืนยันแล้ว',
     approach:[
       ['ตกลงขอบเขตก่อน','ทดสอบเฉพาะระบบและเป้าหมายที่ได้รับอนุมัติล่วงหน้า มี rules of engagement ชัดเจน การทำงานจึงอยู่ในขอบเขตของมหาวิทยาลัยเอง'],
-      ['สั่งและตรวจทีละขั้น','ผมอ่านผลของแต่ละขั้นแล้วตัดสินใจสั่งคำสั่งถัดไปเอง ไม่ได้ปล่อยให้รันอัตโนมัติ HexStrike รวมเครื่องมือมาในตัว งานที่ทำซ้ำ เช่น recon จึงเร็ว ขั้นไหนไม่มีเครื่องมือรองรับก็ทำเอง'],
+      ['เป็น human-in-the-loop','ผมอ่านผลของแต่ละขั้นแล้วตัดสินใจสั่งคำสั่งถัดไปเอง ไม่ได้ปล่อยให้รันอัตโนมัติ HexStrike รวมเครื่องมือมาในตัว งานที่ทำซ้ำ เช่น recon จึงเร็ว และใช้ Burp Suite Pro กับงานฝั่ง web application ขั้นไหนไม่มีเครื่องมือรองรับก็ทำเอง'],
       ['เก็บบันทึกแยกต่อระบบ','แต่ละระบบที่ทดสอบมีบันทึกสิ่งที่พบของตัวเอง จึงไม่มีอะไรตกหล่น และติดตามได้ตั้งแต่พบจนแก้เสร็จ'],
       ['รายงานเจ้าของระบบ','เจ้าของแต่ละระบบได้รายงานที่ระบุระดับความรุนแรงและกำหนดเวลาแก้ไข และผมประสานการแก้ไขให้ ไม่ใช่แค่ส่งรายการให้'],
       ['ทดสอบซ้ำก่อนปิดงาน','สิ่งที่ตรวจพบจะปิดได้ก็ต่อเมื่อแก้แล้วและทดสอบซ้ำผ่าน รายงานจึงสะท้อนความเสี่ยงจริง ไม่ใช่แค่รายการที่รอทำ'],
@@ -792,8 +792,8 @@ function pentestDiagram(lang){
   const L=lang==='th'?{
     edge:'ทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติ · คนสั่งและตรวจทุกขั้น',
     sc:['SCOPE','เป้าหมายที่อนุมัติ',['rules of engagement','ตกลงก่อนเริ่ม']],
-    rc:['RECON','HexStrike',['รวมเครื่องมือในตัว','ไม่มี tool = ทำเอง']],
-    tr:['วิเคราะห์','ผมเอง ทุกขั้น',['อ่านผล แล้วสั่งต่อ','คนสั่ง ไม่ใช่อัตโนมัติ']],
+    rc:['TEST','HexStrike · Burp Pro',['recon + web app','ไม่มี tool = ทำเอง']],
+    tr:['วิเคราะห์','human in the loop',['อ่านผล แล้วสั่งต่อ','ไม่ปล่อยอัตโนมัติ']],
     rp:['REPORT','เจ้าของระบบ',['ระดับความรุนแรง','กำหนดเวลาแก้']],
     rt:['RETEST','ทดสอบซ้ำหลังแก้',['ยืนยันแล้วจึงปิดงาน']],
     soc:['SIEM / SOC','detection rule',['ได้จากรูปแบบที่พบ']],
@@ -803,8 +803,8 @@ function pentestDiagram(lang){
   }:{
     edge:'Only the university’s own approved systems · human-driven and reviewed at every step',
     sc:['SCOPE','Approved targets',['rules of engagement','agreed up front']],
-    rc:['RECON','HexStrike',['bundled tooling','no tool = by hand']],
-    tr:['ANALYSE','Me — every step',['read result, decide next','human, not autopilot']],
+    rc:['TEST','HexStrike · Burp Pro',['recon + web app','no tool = by hand']],
+    tr:['ANALYSE','Human in the loop',['read result, decide next','never on autopilot']],
     rp:['REPORT','System owners',['severity','deadline to fix']],
     rt:['RETEST','Verify the fix',['close only when verified']],
     soc:['SIEM / SOC','detection rules',['built from patterns found']],
