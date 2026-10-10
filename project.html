@@ -365,7 +365,7 @@ const PROJECTS = [
 {
   id:'pentest', title:'Annual penetration testing', category:'Offensive security', status:'Annual',
   diagram:lang=>pentestDiagram(lang),
-  stack:['HexStrike','Burp Suite Pro','Recon & scanning','Web & network testing','Manual testing','Wazuh'],
+  stack:['HexStrike','Burp Suite Pro','Recon & scanning','Web & network testing','Manual testing'],
   en:{
     summary:'Each year I run penetration tests against the university’s own systems. I drive every step and review every result; HexStrike bundles the common tools so repetitive parts such as recon are quick, and Burp Suite Pro covers the web application work; I stay human-in-the-loop, reading every result and deciding the next step myself, and do any step by hand when a tool is missing. Every finding is tracked until it is fixed and a retest confirms it.',
     facts:{'Role':'Plan, test & report','Cycle':'Every year','Tooling':'HexStrike','Control':'Human-in-the-loop'},
@@ -377,9 +377,8 @@ const PROJECTS = [
       ['Keep a record per system','Each tested system has its own record of findings, so nothing is lost and progress is visible from discovery to fix.'],
       ['Report to the system owners','Each owner gets a clear report with a severity and a deadline to fix, and I coordinate the remediation rather than just handing over a list.'],
       ['Retest before closing','A finding is only closed after the fix is verified by a retest, so the report reflects real risk, not a to-do list.'],
-      ['Feed results back to the SOC','Patterns found during testing become new detection rules in the SIEM, so the defensive side learns from the offensive side.'],
     ],
-    outcomes:[['Yearly','testing cycle across approved systems'],['Verified','findings closed only after retest'],['SOC','detection rules fed from findings']],
+    outcomes:[['Yearly','testing cycle across approved systems'],['Verified','findings closed only after retest'],['Retest','every fix confirmed before closing']],
     lessons:'An assistant is useful for the repetitive stages, but judgement and scope control stay with a person: a tool pointed at the wrong target, or a finding that is never fixed, is where the real risk lives. Keeping everything in one case tracker is what turns a scan into a closed loop.',
     security:'This page describes the process only. No findings, target systems, tool detail, or results are published, and all testing is on the university’s own authorised systems.'
   },
@@ -394,9 +393,8 @@ const PROJECTS = [
       ['เก็บบันทึกแยกต่อระบบ','แต่ละระบบที่ทดสอบมีบันทึกสิ่งที่พบของตัวเอง จึงไม่มีอะไรตกหล่น และติดตามได้ตั้งแต่พบจนแก้เสร็จ'],
       ['รายงานเจ้าของระบบ','เจ้าของแต่ละระบบได้รายงานที่ระบุระดับความรุนแรงและกำหนดเวลาแก้ไข และผมประสานการแก้ไขให้ ไม่ใช่แค่ส่งรายการให้'],
       ['ทดสอบซ้ำก่อนปิดงาน','สิ่งที่ตรวจพบจะปิดได้ก็ต่อเมื่อแก้แล้วและทดสอบซ้ำผ่าน รายงานจึงสะท้อนความเสี่ยงจริง ไม่ใช่แค่รายการที่รอทำ'],
-      ['ส่งผลกลับเข้า SOC','รูปแบบที่พบระหว่างทดสอบนำไปสร้าง detection rule ใหม่ใน SIEM ฝั่งป้องกันจึงได้เรียนรู้จากฝั่งทดสอบ'],
     ],
-    outcomes:[['ทุกปี','รอบการทดสอบระบบที่ได้รับอนุมัติ'],['ยืนยันแล้ว','ปิดงานเฉพาะหลังทดสอบซ้ำผ่าน'],['SOC','detection rule ที่มาจากผลการทดสอบ']],
+    outcomes:[['ทุกปี','รอบการทดสอบระบบที่ได้รับอนุมัติ'],['ยืนยันแล้ว','ปิดงานเฉพาะหลังทดสอบซ้ำผ่าน'],['Retest','ยืนยันทุกการแก้ก่อนปิดงาน']],
     lessons:'AI ช่วยได้ดีกับงานที่ทำซ้ำ แต่การตัดสินใจและการคุมขอบเขตยังเป็นของคน เครื่องมือที่เล็งผิดเป้า หรือสิ่งที่ตรวจพบแล้วไม่ได้แก้ คือจุดที่ความเสี่ยงจริงอยู่ และการเก็บทุกอย่างไว้ใน case tracker เดียวคือสิ่งที่เปลี่ยนการสแกนให้กลายเป็นวงรอบที่ปิดจบ',
     security:'หน้านี้อธิบายเฉพาะกระบวนการ ไม่เปิดเผยสิ่งที่ตรวจพบ ระบบเป้าหมาย รายละเอียดเครื่องมือ หรือผลการทดสอบ และทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติเท่านั้น'
   }
@@ -505,7 +503,7 @@ function socDiagram(lang){
   <text class="lg" x="116" y="392">${esc(L.s1)}</text>
   <text class="lg" x="332" y="388">${esc(L.s2)}</text>
 </svg>
-<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="h"></i>${L.lg[2]}</span></div>`;
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="h"></i>${L.lg[1]}</span></div>`;
 }
 
 /* ---------- Conceptual diagram (CI/CD) — ไม่มีชื่อระบบ, path, hostname ---------- */
@@ -796,10 +794,8 @@ function pentestDiagram(lang){
     tr:['วิเคราะห์','human in the loop',['อ่านผล แล้วสั่งต่อ','ไม่ปล่อยอัตโนมัติ']],
     rp:['REPORT','เจ้าของระบบ',['ระดับความรุนแรง','กำหนดเวลาแก้']],
     rt:['RETEST','ทดสอบซ้ำหลังแก้',['ยืนยันแล้วจึงปิดงาน']],
-    soc:['SIEM / SOC','detection rule',['ได้จากรูปแบบที่พบ']],
     hu:['HUMAN','คนควบคุม',['ตรวจผลทุกขั้น','คุมขอบเขต']],
-    s1:'ผลที่พบ → สร้าง rule',
-    lg:['ขั้นตอนการทดสอบ','ป้อนกลับเข้า SOC','คนเป็นผู้ควบคุม']
+    lg:['ขั้นตอนการทดสอบ','คนเป็นผู้ควบคุม']
   }:{
     edge:'Only the university’s own approved systems · human-driven and reviewed at every step',
     sc:['SCOPE','Approved targets',['rules of engagement','agreed up front']],
@@ -807,10 +803,9 @@ function pentestDiagram(lang){
     tr:['ANALYSE','Human in the loop',['read result, decide next','never on autopilot']],
     rp:['REPORT','System owners',['severity','deadline to fix']],
     rt:['RETEST','Verify the fix',['close only when verified']],
-    soc:['SIEM / SOC','detection rules',['built from patterns found']],
     hu:['HUMAN','In control',['reviews every result','keeps scope']],
     s1:'findings → new rules',
-    lg:['Testing stages','Fed back to SOC','Human in control']
+    lg:['Testing stages','Human in control']
   };
   const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
@@ -831,7 +826,6 @@ function pentestDiagram(lang){
   ${box(676,150,W,100,L.rp)}
   ${box(870,150,W-10,100,L.rt,'core')}
   ${box(232,300,W,92,L.hu,'human')}
-  ${box(454,300,W+222,92,L.soc,'intel')}
 
   <path class="alert" d="M190,200 L230,200" marker-end="url(#pa)"/>
   <path class="alert" d="M412,200 L452,200" marker-end="url(#pa)"/>
@@ -839,10 +833,8 @@ function pentestDiagram(lang){
   <path class="alert" d="M856,200 L868,200" marker-end="url(#pa)"/>
   <path class="alert" d="M322,300 L322,254" marker-end="url(#pa)"/>
 
-  <path class="share" d="M544,254 L544,296" marker-end="url(#ps)"/>
-  <text class="lg" x="554" y="284">${esc(L.s1)}</text>
 </svg>
-<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="h"></i>${L.lg[2]}</span></div>`;
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="h"></i>${L.lg[1]}</span></div>`;
 }
 
 /* ---------- Render ---------- */
