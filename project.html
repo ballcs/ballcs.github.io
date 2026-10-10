@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Case study | Wichukorn Dandecha</title>
 <meta name="theme-color" content="#070D1A">
-<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, AI gateway and post-quantum admin VPN">
+<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway and post-quantum admin VPN">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Case study | Wichukorn Dandecha">
-<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, AI gateway and post-quantum admin VPN">
+<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway and post-quantum admin VPN">
 <meta property="og:url" content="https://ballcs.github.io/project.html">
 <meta property="og:image" content="https://ballcs.github.io/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -280,6 +280,45 @@ const PROJECTS = [
     outcomes:[['4','Moodle web node ของระบบสอบที่ทำ load balance'],['7','node ของ MariaDB cluster หลัง MaxScale'],['2','ระบบ Moodle ที่แยกกัน (สอบ · e-Learning)']],
     lessons:'Moodle จะขยายแบบหลาย node ได้ก็ต่อเมื่อย้าย state ออกจาก web node แล้ว ทั้ง session, cache และไฟล์ต้องใช้ร่วมกัน ไม่อย่างนั้นผู้ใช้จะหลุดเมื่อถูกส่งไปคนละ node และจุดที่รับแรงกระแทกตอนเริ่มสอบก่อนมักเป็นฐานข้อมูล ไม่ใช่ web tier',
     security:'ไม่เปิดเผยตัวเลขความจุ hostname หรือโครงสร้างภายในของแต่ละชั้น ทั้งสองระบบอยู่หลัง WAF เหมือน server อื่นของมหาวิทยาลัย'
+  }
+},
+{
+  id:'k8s', title:'Kubernetes web hosting platform', category:'Platform', status:'Planned',
+  diagram:lang=>k8sDiagram(lang),
+  stack:['Kubernetes (kubeadm)','containerd','kube-vip','MetalLB','Traefik','GitHub Actions','GHCR','kustomize','Helm','Redis','NFS / RWX','PostgreSQL','Prometheus','Grafana','Wazuh'],
+  en:{
+    summary:'A planned rebuild of university web hosting on an on-prem, highly available Kubernetes cluster: every web system and the new Moodle run as containers behind the WAF, deployed by GitHub Actions. Designed and documented; build is planned for this fiscal year.',
+    facts:{'Role':'Design & build','Scope':'30+ web systems + Moodle','Availability':'survives loss of any one node','Status':'Planned · this fiscal year'},
+    arch:[['Edge','WAF','all traffic'],['Ingress','MetalLB + Traefik','one VIP'],['Apps','Web pods','30+ systems'],['Moodle','Own node pool','scale for exams'],['CI/CD','GitHub Actions','build ≠ deploy']],
+    problem:'Today each system runs on its own hand-built servers. Dozens of machines need patching one by one, deploys differ between systems, and capacity for exam peaks has to be provisioned all year. All of it is run by one person, so the platform itself has to remove work, not add it.',
+    approach:[
+      ['Real high availability','Three control-plane nodes each run etcd, and the API sits behind a floating VIP (kube-vip). Two etcd nodes cannot keep a majority, so three is the minimum for HA that actually survives a failure.'],
+      ['One door behind the WAF','The WAF forwards to a single MetalLB VIP in front of Traefik (3 replicas). Traefik trusts X-Forwarded-For only from the WAF, so client IPs cannot be spoofed and every site follows the same path.'],
+      ['Build is separate from deploy','A CI runner builds and tests images and pushes them to GHCR with no access to the cluster; a separate deploy runner holds a narrowly scoped kubeconfig. Every repository calls one reusable workflow and keeps its manifests in kustomize.'],
+      ['Moodle in its own lane','Moodle gets a dedicated, tainted node pool with its own Traefik and VIP, Redis for sessions and cache, shared RWX storage for moodledata and per-pod local cache. Pods are scaled up before exams instead of waiting for the autoscaler.'],
+      ['Security and operations built in','Wazuh reads the Kubernetes audit log and runs kube-bench; Prometheus, Grafana and Alertmanager watch the cluster; etcd is backed up automatically. Databases stay outside the cluster.'],
+      ['Prove it before go-live','Load tests on staging must pass, including 3,000 students starting a quiz within two minutes and losing a worker node mid-test.'],
+    ],
+    outcomes:[['30+','web systems planned on one platform'],['N+1','design survives loss of any one node'],['5,000','concurrent Moodle users design target']],
+    lessons:'Design notes: copying a reference cluster is not enough. The reference used two etcd nodes, which is not HA, a single master address, and an ingress project that has since been retired, so each was replaced. Moodle is stateful and is treated as its own workload rather than as one more website.',
+    security:'This page shows the design only. No real addresses, hostnames or sizing beyond design targets are published, and secrets are injected at deploy time rather than stored in repositories.'
+  },
+  th:{
+    summary:'แผนยกเครื่อง web hosting ของมหาวิทยาลัยขึ้น Kubernetes แบบ HA บนเครื่องของเราเอง ทุกระบบเว็บและ Moodle ใหม่รันเป็น container หลัง WAF และ deploy ด้วย GitHub Actions ออกแบบและทำเอกสารแล้ว มีแผนสร้างจริงในปีงบประมาณนี้',
+    facts:{'บทบาท':'ออกแบบและสร้าง','ขอบเขต':'เว็บ 30+ ระบบ + Moodle','ความพร้อมใช้งาน':'เสีย node ใดก็ได้ 1 ตัว ระบบไม่ล่ม','สถานะ':'แผน · ปีงบประมาณนี้'},
+    arch:[['Edge','WAF','traffic ทั้งหมด'],['Ingress','MetalLB + Traefik','VIP เดียว'],['Apps','Web pods','30+ ระบบ'],['Moodle','node pool แยก','ขยายช่วงสอบ'],['CI/CD','GitHub Actions','build แยกจาก deploy']],
+    problem:'ปัจจุบันแต่ละระบบรันบน server ที่ติดตั้งด้วยมือแยกกัน เครื่องหลายสิบเครื่องต้อง patch ทีละเครื่อง วิธี deploy ไม่เหมือนกัน และต้องเผื่อทรัพยากรสำหรับช่วงสอบไว้ทั้งปี ทั้งหมดดูแลโดยคนคนเดียว แพลตฟอร์มใหม่จึงต้องลดงาน ไม่ใช่เพิ่มงาน',
+    approach:[
+      ['HA ของจริง','control plane 3 node แต่ละตัวมี etcd และ API อยู่หลัง VIP ที่ย้ายเครื่องได้ (kube-vip) etcd 2 ตัวรักษาเสียงข้างมากไม่ได้ จึงต้องมีอย่างน้อย 3 ตัวถึงจะเสียเครื่องได้จริง'],
+      ['ทางเข้าเดียวหลัง WAF','WAF ส่งต่อมาที่ VIP เดียวของ MetalLB หน้า Traefik (3 replica) Traefik เชื่อ X-Forwarded-For เฉพาะจาก WAF จึงปลอม IP ของผู้ใช้ไม่ได้ และทุกเว็บใช้เส้นทางเดียวกัน'],
+      ['แยก build ออกจาก deploy','runner ฝั่ง CI build และทดสอบ image แล้ว push ไป GHCR โดยไม่มีสิทธิ์เข้า cluster ส่วน runner ฝั่ง deploy ถือ kubeconfig ที่จำกัดสิทธิ์ ทุก repo เรียก reusable workflow ตัวเดียวกัน และเก็บ manifest ด้วย kustomize'],
+      ['Moodle มีช่องทางของตัวเอง','Moodle มี node pool แยกพร้อม taint มี Traefik และ VIP ของตัวเอง ใช้ Redis เก็บ session และ cache ใช้ RWX storage สำหรับ moodledata และ local cache ในแต่ละ pod ก่อนสอบจะเพิ่ม pod ล่วงหน้าแทนการรอ autoscaler'],
+      ['security และ operation ฝังมาตั้งแต่ต้น','Wazuh อ่าน audit log ของ Kubernetes และรัน kube-bench มี Prometheus, Grafana และ Alertmanager เฝ้า cluster และ backup etcd อัตโนมัติ ส่วนฐานข้อมูลอยู่นอก cluster'],
+      ['พิสูจน์ก่อนเปิดใช้','ต้องผ่าน load test บน staging รวมถึงกรณีนักศึกษา 3,000 คนเริ่มทำ quiz ภายใน 2 นาที และกรณีปิด worker 1 เครื่องระหว่างทดสอบ'],
+    ],
+    outcomes:[['30+','ระบบเว็บที่วางแผนไว้บนแพลตฟอร์มเดียว'],['N+1','ออกแบบให้เสีย node ใดก็ได้ 1 ตัว'],['5,000','ผู้ใช้ Moodle พร้อมกัน (เป้าหมายการออกแบบ)']],
+    lessons:'บันทึกการออกแบบ: ลอกต้นแบบมาอย่างเดียวไม่พอ ต้นแบบใช้ etcd 2 ตัวซึ่งไม่ใช่ HA ใช้ IP ของ master เครื่องเดียวเป็น API และใช้ ingress ที่เลิกพัฒนาไปแล้ว จึงแก้ทั้งหมด และ Moodle มี state จึงออกแบบให้เป็น workload แยก ไม่ได้มองเป็นเว็บอีกหนึ่งระบบ',
+    security:'หน้านี้แสดงเฉพาะการออกแบบ ไม่เผยแพร่ที่อยู่จริง hostname หรือขนาดเครื่องนอกจากเป้าหมายการออกแบบ และ secret ถูกส่งเข้าไปตอน deploy ไม่เก็บใน repository'
   }
 },
 {
@@ -623,6 +662,89 @@ function aiDiagram(lang){
   <path class="share" d="M100,298 L100,162" marker-end="url(#gs)"/>
   <path class="share" d="M190,350 C220,350 214,150 230,146" marker-end="url(#gs)"/>
   <path class="share" d="M544,266 C544,400 955,410 955,334" marker-end="url(#gs)"/>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
+}
+
+/* ---------- Conceptual diagram (k8s platform, planned) — ไม่มี IP / hostname ---------- */
+function k8sDiagram(lang){
+  const L=lang==='th'?{
+    edge:'แผน · กำลังออกแบบ · ทุกเว็บเข้าผ่าน WAF',
+    us:['USERS','ผู้ใช้',['internet + ภายใน']],
+    waf:['EDGE','WAF',['เชื่อ XFF เฉพาะจาก WAF']],
+    ing:['INGRESS','MetalLB + Traefik',['VIP เดียวทุกเว็บ','Traefik × 3']],
+    web:['WORKLOADS','เว็บ 30+ ระบบ',['pod ละ 2 replica','kustomize ต่อ repo']],
+    md:['MOODLE POOL','Moodle',['node pool + Traefik แยก','เพิ่ม pod ก่อนสอบ']],
+    db:['OUTSIDE CLUSTER','Databases',['PostgreSQL และ DB เดิม']],
+    st:['STATE','Redis + RWX',['session, cache','moodledata']],
+    cp:['CONTROL PLANE','master × 3 + etcd',['API VIP · kube-vip']],
+    gh:['CI/CD','GitHub Actions',['reusable workflow เดียว']],
+    rc:['BUILD','runner-ci',['build + test','ไม่มีสิทธิ์เข้า cluster']],
+    gr:['REGISTRY','GHCR',['container images']],
+    rd:['DEPLOY','runner-deploy',['kubectl · RBAC จำกัด']],
+    obs:'Wazuh (audit log · kube-bench) · Prometheus · Grafana · Alertmanager · backup etcd อัตโนมัติ',
+    pull:'pull image',
+    lg:['เส้นทาง request','เส้นทาง deploy']
+  }:{
+    edge:'Planned · in design · every site enters through the WAF',
+    us:['USERS','Users',['internet + campus']],
+    waf:['EDGE','WAF',['XFF trusted only from WAF']],
+    ing:['INGRESS','MetalLB + Traefik',['one VIP for every site','Traefik × 3']],
+    web:['WORKLOADS','Web apps · 30+',['2 replicas each','kustomize per repo']],
+    md:['MOODLE POOL','Moodle',['own nodes + Traefik','scale up before exams']],
+    db:['OUTSIDE CLUSTER','Databases',['PostgreSQL + existing DBs']],
+    st:['STATE','Redis + RWX',['sessions, cache','moodledata']],
+    cp:['CONTROL PLANE','3 masters + etcd',['API VIP · kube-vip']],
+    gh:['CI/CD','GitHub Actions',['one reusable workflow']],
+    rc:['BUILD','runner-ci',['build + test','no cluster access']],
+    gr:['REGISTRY','GHCR',['container images']],
+    rd:['DEPLOY','runner-deploy',['kubectl · scoped RBAC']],
+    obs:'Wazuh (audit log · kube-bench) · Prometheus · Grafana · Alertmanager · automated etcd backups',
+    pull:'pull image',
+    lg:['Request path','Deploy path']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 500" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของแพลตฟอร์ม Kubernetes (แผน)':'Conceptual Kubernetes platform diagram (planned)'}">
+  <defs>
+    <marker id="ka" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="ks" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${box(10,80,W,80,L.us)}
+  ${box(232,80,W,80,L.waf)}
+  ${box(454,62,W,112,L.ing,'core')}
+  ${box(676,56,W,100,L.web,'core')}
+  ${box(676,176,W,104,L.md,'core')}
+  ${box(870,56,W-10,100,L.db)}
+  ${box(870,176,W-10,104,L.st)}
+  ${box(454,196,W,92,L.cp,'core')}
+  ${box(10,340,W,96,L.gh,'intel')}
+  ${box(232,340,W,96,L.rc,'intel')}
+  ${box(454,340,W,96,L.gr,'intel')}
+  ${box(676,340,W,96,L.rd,'intel')}
+
+  <path class="alert" d="M190,120 L230,120" marker-end="url(#ka)"/>
+  <path class="alert" d="M412,120 L452,120" marker-end="url(#ka)"/>
+  <path class="alert" d="M634,104 L674,104" marker-end="url(#ka)"/>
+  <path class="alert" d="M634,150 C656,150 652,226 674,226" marker-end="url(#ka)"/>
+  <path class="alert" d="M856,104 L868,104" marker-end="url(#ka)"/>
+  <path class="alert" d="M856,228 L868,228" marker-end="url(#ka)"/>
+
+  <path class="share" d="M190,388 L230,388" marker-end="url(#ks)"/>
+  <path class="share" d="M412,388 L452,388" marker-end="url(#ks)"/>
+  <path class="share" d="M100,436 C100,446 110,448 130,448 L746,448 C760,448 766,446 766,438" marker-end="url(#ks)"/>
+  <path class="share" d="M700,340 C700,312 604,320 596,292" marker-end="url(#ks)"/>
+  <path class="share" d="M616,340 C640,298 748,318 766,284" marker-end="url(#ks)"/>
+  <text class="lg" x="776" y="316">${esc(L.pull)}</text>
+
+  <rect class="band" x="4" y="460" width="1052" height="32" rx="16"/>
+  <text class="lg" x="530" y="481" text-anchor="middle">${esc(L.obs)}</text>
 </svg>
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
 }
