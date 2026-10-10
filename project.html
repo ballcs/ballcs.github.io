@@ -71,6 +71,9 @@ h1{font:600 clamp(36px,5.4vw,62px)/1.04 var(--display);letter-spacing:-.035em;ma
 .dg .alert{stroke:var(--warn);stroke-width:2;fill:none}
 .dg .share{stroke:var(--accent-2);stroke-width:1.6;fill:none;stroke-dasharray:5 4}
 .dg .lg{font:500 11px var(--mono);fill:#7F8FAD}
+.dg .fail{stroke:#F2777A;stroke-width:1.6;fill:none;stroke-dasharray:5 4}
+.dg .bx.failbx{fill:rgba(242,119,122,.07);stroke:#F2777A}
+.dg-legend i.f{border-top:2px dashed #F2777A}
 .dg-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font:500 12px var(--mono);color:#7F8FAD}
 .dg-legend i{display:inline-block;width:22px;height:0;border-top:2px solid var(--warn);vertical-align:middle;margin-right:8px}
 .dg-legend i.s{border-top:2px dashed var(--accent-2)}
@@ -201,6 +204,7 @@ const PROJECTS = [
 },
 {
   id:'cicd', title:'DevSecOps deployment pipeline', category:'DevSecOps', status:'Production',
+  diagram:lang=>cicdDiagram(lang),
   stack:['GitHub Actions','Self-hosted runners','CodeQL','Dependabot','npm audit','PM2','Laravel','Yii2 / Yii1','CodeIgniter 2','Python','Next.js','.NET Core'],
   en:{
     summary:'Moved production deployments from webhooks to GitHub Actions on self-hosted runners across seven frameworks in four languages. I own the security and operations stages.',
@@ -370,6 +374,80 @@ function socDiagram(lang){
   <text class="lg" x="332" y="388">${esc(L.s2)}</text>
 </svg>
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="h"></i>${L.lg[2]}</span></div>`;
+}
+
+/* ---------- Conceptual diagram (CI/CD) — ไม่มีชื่อระบบ, path, hostname ---------- */
+function cicdDiagram(lang){
+  const L=lang==='th'?{
+    edge:'production deploy ได้ทางเดียวคือผ่าน GitHub Actions · ไม่มี webhook เปิดรับจากภายนอก',
+    tr:['TRIGGER','Push / สั่งเอง',['commit เข้า main','หรือ workflow_dispatch']],
+    ga:['GATE','ตรวจก่อน deploy',['token ไม่มีสิทธิ์ตั้งต้น','concurrency lock','production environment']],
+    bu:['BUILD','Self-hosted runner',['pre-flight checks','install + dependency audit','build']],
+    re:['RELEASE','Deploy',['snapshot ก่อน deploy','reload ไม่มี downtime']],
+    ve:['VERIFY','ตรวจหลัง deploy',['health check','smoke test']],
+    hu:['HUMAN','ผู้อนุมัติ',['พิมพ์ DEPLOY เพื่อยืนยัน','เฉพาะการสั่งเอง']],
+    fa:['ON FAILURE','วินิจฉัย + rollback',['log · disk · memory','snapshot พร้อมย้อนกลับ']],
+    no:['NOTIFY','แจ้งทีม',['เริ่ม · สำเร็จ · ล้มเหลว','commit + ผู้สั่ง']],
+    sc:['SECURITY SCANNING','CodeQL + Dependabot',['สแกนโค้ด · อัปเดต dependency','ทุก push และ pull request']],
+    s1:'ผลสแกน → PR', s2:'audit ใน build', f1:'ขั้นใดล้มเหลว',
+    lg:['เส้นทาง deploy','security scanning','เส้นทางเมื่อล้มเหลว','คนเป็นผู้ตัดสินใจ']
+  }:{
+    edge:'Production is deployed only through GitHub Actions · no inbound webhook',
+    tr:['TRIGGER','Push / manual run',['commit to main','or workflow_dispatch']],
+    ga:['GATE','Pre-deploy checks',['token starts with no rights','concurrency lock','production environment']],
+    bu:['BUILD','Self-hosted runner',['pre-flight checks','install + dependency audit','build']],
+    re:['RELEASE','Deploy',['snapshot before deploy','zero-downtime reload']],
+    ve:['VERIFY','Health checks',['health check','smoke test']],
+    hu:['HUMAN','Approver',['types DEPLOY to confirm','manual runs only']],
+    fa:['ON FAILURE','Diagnose + roll back',['logs · disk · memory','snapshot ready to restore']],
+    no:['NOTIFY','Team alert',['start · success · failure','commit + actor']],
+    sc:['SECURITY SCANNING','CodeQL + Dependabot',['code scanning · dependency updates','every push and pull request']],
+    s1:'findings → PR', s2:'audit in build', f1:'any step fails',
+    lg:['Deploy path','Security scanning','Failure path','Human decision point']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 445" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของ deployment pipeline':'Conceptual deployment pipeline diagram'}">
+  <defs>
+    <marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="cs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+    <marker id="cf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F2777A"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  <g transform="translate(0,-75)">
+  ${box(10,150,W,108,L.tr)}
+  ${box(232,140,W,128,L.ga,'core')}
+  ${box(454,140,W,128,L.bu,'core')}
+  ${box(676,150,W,108,L.re,'core')}
+  ${box(870,150,W-10,108,L.ve,'core')}
+  ${box(232,300,W,92,L.hu,'human')}
+  ${box(676,300,W,92,L.fa,'failbx')}
+  ${box(870,300,W-10,92,L.no)}
+  ${box(10,412,W+222,92,L.sc,'intel')}
+
+  <path class="alert" d="M190,204 L230,204" marker-end="url(#ca)"/>
+  <path class="alert" d="M412,204 L452,204" marker-end="url(#ca)"/>
+  <path class="alert" d="M634,204 L674,204" marker-end="url(#ca)"/>
+  <path class="alert" d="M856,204 L868,204" marker-end="url(#ca)"/>
+  <path class="alert" d="M955,258 L955,298" marker-end="url(#ca)"/>
+  <path class="alert" d="M322,300 L322,270" marker-end="url(#ca)"/>
+
+  <path class="fail" d="M766,258 L766,298" marker-end="url(#cf)"/>
+  <path class="fail" d="M856,346 L868,346" marker-end="url(#cf)"/>
+  <text class="lg" x="784" y="284">${esc(L.f1)}</text>
+
+  <path class="share" d="M100,410 L100,262" marker-end="url(#cs)"/>
+  <path class="share" d="M412,458 C520,458 544,360 544,270" marker-end="url(#cs)"/>
+  <text class="lg" x="110" y="340">${esc(L.s1)}</text>
+  <text class="lg" x="554" y="340">${esc(L.s2)}</text>
+  </g>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="f"></i>${L.lg[2]}</span><span><i class="h"></i>${L.lg[3]}</span></div>`;
 }
 /* ---------- Render ---------- */
 const root=document.documentElement;
