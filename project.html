@@ -788,55 +788,67 @@ function k8sDiagram(lang){
 /* ---------- Conceptual diagram (pentest) — กระบวนการล้วน ไม่มีเป้าหมาย/ช่องโหว่/เครื่องมือละเอียด ---------- */
 function pentestDiagram(lang){
   const L=lang==='th'?{
-    edge:'ทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติ · คนสั่งและตรวจทุกขั้น',
-    sc:['SCOPE','เป้าหมายที่อนุมัติ',['rules of engagement','ตกลงก่อนเริ่ม']],
-    rc:['TEST','HexStrike · Burp Pro',['recon + web app','ไม่มี tool = ทำเอง']],
-    tr:['วิเคราะห์','human in the loop',['อ่านผล แล้วสั่งต่อ','ไม่ปล่อยอัตโนมัติ']],
-    rp:['REPORT','เจ้าของระบบ',['ระดับความรุนแรง','กำหนดเวลาแก้']],
-    rt:['RETEST','ทดสอบซ้ำหลังแก้',['ยืนยันแล้วจึงปิดงาน']],
-    hu:['HUMAN','คนควบคุม',['ตรวจผลทุกขั้น','คุมขอบเขต']],
-    lg:['ขั้นตอนการทดสอบ','คนเป็นผู้ควบคุม']
+    edge:'ทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติ · human-in-the-loop ทุกขั้น',
+    sc:['1 · SCOPE','เป้าหมายที่อนุมัติ',['rules of engagement','ตกลงก่อนเริ่ม']],
+    rc:['2 · RECON','เก็บข้อมูล',['HexStrike','footprint + OSINT']],
+    en:['3 · ENUMERATE','สแกน + แจกแจง',['HexStrike','port, service, web app']],
+    ex:['4 · EXPLOIT','พิสูจน์ช่องโหว่',['Burp Pro + manual','ยืนยันว่าใช้ได้จริง']],
+    po:['5 · POST-EXPLOIT','ประเมินผลกระทบ',['เท่าที่ขอบเขตอนุญาต','ไม่กระทบระบบ']],
+    an:['6 · ANALYSE','วิเคราะห์',['จัดระดับความรุนแรง','human-in-the-loop']],
+    rp:['7 · REPORT','เจ้าของระบบ',['พร้อมกำหนดเวลาแก้']],
+    rt:['8 · RETEST','ทดสอบซ้ำหลังแก้',['ยืนยันแล้วจึงปิดงาน']],
+    hu:['HUMAN IN THE LOOP',['ผมอ่านผลและสั่งขั้นถัดไปเองทุกขั้น','คุมขอบเขตตลอด · ไม่ปล่อยอัตโนมัติ']],
+    lg:['ขั้นตอนการทดสอบ']
   }:{
-    edge:'Only the university’s own approved systems · human-driven and reviewed at every step',
-    sc:['SCOPE','Approved targets',['rules of engagement','agreed up front']],
-    rc:['TEST','HexStrike · Burp Pro',['recon + web app','no tool = by hand']],
-    tr:['ANALYSE','Human in the loop',['read result, decide next','never on autopilot']],
-    rp:['REPORT','System owners',['severity','deadline to fix']],
-    rt:['RETEST','Verify the fix',['close only when verified']],
-    hu:['HUMAN','In control',['reviews every result','keeps scope']],
-    s1:'findings → new rules',
-    lg:['Testing stages','Human in control']
+    edge:'Only the university’s own approved systems · human-in-the-loop at every step',
+    sc:['1 · SCOPE','Approved targets',['rules of engagement','agreed up front']],
+    rc:['2 · RECON','Information gathering',['HexStrike','footprint + OSINT']],
+    en:['3 · ENUMERATE','Scan + enumerate',['HexStrike','ports, services, web app']],
+    ex:['4 · EXPLOIT','Prove the finding',['Burp Pro + manual','confirm it is real']],
+    po:['5 · POST-EXPLOIT','Assess impact',['within scope only','no harm to the system']],
+    an:['6 · ANALYSE','Analysis',['rate severity','human-in-the-loop']],
+    rp:['7 · REPORT','System owners',['with a deadline to fix']],
+    rt:['8 · RETEST','Verify the fix',['close only when verified']],
+    hu:['HUMAN IN THE LOOP',['I read each result and run the next step myself','scope kept at all times · never on autopilot']],
+    lg:['Testing stages']
   };
   const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
     <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
     ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
-  const W=180;
-  return `<svg class="dg" viewBox="0 0 1060 430" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของกระบวนการ penetration testing':'Conceptual penetration-testing process diagram'}">
+  const W=196;
+  return `<svg class="dg" viewBox="0 0 1060 500" role="img" aria-label="${lang==='th'?'แผนภาพกระบวนการ penetration testing':'Penetration-testing process diagram'}">
   <defs>
     <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
-    <marker id="ps" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
   </defs>
   <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
   <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
 
-  ${box(10,150,W,100,L.sc)}
-  ${box(232,150,W,100,L.rc,'core')}
-  ${box(454,150,W,100,L.tr,'core')}
-  ${box(676,150,W,100,L.rp)}
-  ${box(870,150,W-10,100,L.rt,'core')}
-  ${box(232,300,W,92,L.hu,'human')}
+  ${box(10,70,W,98,L.sc)}
+  ${box(228,70,W,98,L.rc,'core')}
+  ${box(446,70,W,98,L.en,'core')}
+  ${box(664,70,W,98,L.ex,'core')}
+  ${box(882,70,166,98,L.po,'core')}
 
-  <path class="alert" d="M190,200 L230,200" marker-end="url(#pa)"/>
-  <path class="alert" d="M412,200 L452,200" marker-end="url(#pa)"/>
-  <path class="alert" d="M634,200 L674,200" marker-end="url(#pa)"/>
-  <path class="alert" d="M856,200 L868,200" marker-end="url(#pa)"/>
-  <path class="alert" d="M322,300 L322,254" marker-end="url(#pa)"/>
+  ${box(10,250,W,98,L.an,'core')}
+  ${box(228,250,W,98,L.rp)}
+  ${box(446,250,W,98,L.rt,'core')}
 
+  <path class="alert" d="M206,119 L226,119" marker-end="url(#pa)"/>
+  <path class="alert" d="M424,119 L444,119" marker-end="url(#pa)"/>
+  <path class="alert" d="M642,119 L662,119" marker-end="url(#pa)"/>
+  <path class="alert" d="M860,119 L880,119" marker-end="url(#pa)"/>
+  <path class="alert" d="M965,168 C965,210 108,208 108,248" marker-end="url(#pa)"/>
+  <path class="alert" d="M206,299 L226,299" marker-end="url(#pa)"/>
+  <path class="alert" d="M424,299 L444,299" marker-end="url(#pa)"/>
+
+  <rect class="bx human" x="664" y="250" width="384" height="98" rx="12"/>
+  <text class="k" x="678" y="272" style="fill:var(--warn)">${esc(L.hu[0])}</text>
+  <text class="d" x="678" y="296">${esc(L.hu[1][0])}</text>
+  <text class="d" x="678" y="313">${esc(L.hu[1][1])}</text>
 </svg>
-<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="h"></i>${L.lg[1]}</span></div>`;
+<div class="dg-legend"><span><i class="h"></i>${L.lg[0]}</span></div>`;
 }
-
 /* ---------- Render ---------- */
 const root=document.documentElement;
 const params=new URLSearchParams(location.search);
