@@ -256,7 +256,7 @@ const PROJECTS = [
       ['Scale the web tier out','Four identical Moodle web nodes sit behind a load balancer, so traffic spreads across them and a node can be taken out without stopping the exam.'],
       ['Move state off the nodes','Sessions and application cache live in Redis and files in shared storage, so a student can land on any node without being logged out.'],
       ['Cluster the database','MaxScale sits in front of a 7-node MariaDB cluster and routes queries to healthy nodes, so the database is not tied to one server.'],
-      ['Keep exams apart','Online exams run on their own platform, separate from the 5-node e-Learning system, so daily teaching load never competes with an exam.'],
+      ['Keep exams apart','Online exams run on their own platform, separate from the e-Learning system (5 web nodes with its own Redis and shared storage), so daily teaching load never competes with an exam.'],
     ],
     outcomes:[['4','load-balanced Moodle web nodes for exams'],['7','node MariaDB cluster behind MaxScale'],['2','Moodle platforms kept separate (exam · e-Learning)']],
     lessons:'Moodle only scales out once state leaves the web nodes: sessions, cache and files must be shared or users get logged out as they move between nodes. And the database, not the web tier, is usually where an exam start first hurts.',
@@ -271,7 +271,7 @@ const PROJECTS = [
       ['ขยาย web tier ออกด้านข้าง','Moodle web server 4 node ที่เหมือนกันอยู่หลัง load balancer โหลดจึงกระจายไปทุก node และถอด node ออกได้โดยไม่ต้องหยุดการสอบ'],
       ['ย้าย state ออกจาก node','session และ cache อยู่ใน Redis ส่วนไฟล์อยู่ใน storage ที่ใช้ร่วมกัน นักศึกษาจึงถูกส่งไป node ไหนก็ได้โดยไม่หลุดจากระบบ'],
       ['ทำ cluster ให้ฐานข้อมูล','MaxScale อยู่หน้า MariaDB cluster 7 node และส่ง query ไปยัง node ที่พร้อมทำงาน ฐานข้อมูลจึงไม่ผูกกับเครื่องเดียว'],
-      ['แยกระบบสอบออกมา','ระบบสอบออนไลน์แยกจากระบบ e-Learning (web 5 node) โหลดจากการเรียนการสอนประจำวันจึงไม่แย่งทรัพยากรกับการสอบ'],
+      ['แยกระบบสอบออกมา','ระบบสอบออนไลน์แยกจากระบบ e-Learning (web 5 node พร้อม Redis และ shared storage ของตัวเอง) โหลดจากการเรียนการสอนประจำวันจึงไม่แย่งทรัพยากรกับการสอบ'],
     ],
     outcomes:[['4','Moodle web node ของระบบสอบที่ทำ load balance'],['7','node ของ MariaDB cluster หลัง MaxScale'],['2','ระบบ Moodle ที่แยกกัน (สอบ · e-Learning)']],
     lessons:'Moodle จะขยายแบบหลาย node ได้ก็ต่อเมื่อย้าย state ออกจาก web node แล้ว ทั้ง session, cache และไฟล์ต้องใช้ร่วมกัน ไม่อย่างนั้นผู้ใช้จะหลุดเมื่อถูกส่งไปคนละ node และจุดที่รับแรงกระแทกตอนเริ่มสอบก่อนมักเป็นฐานข้อมูล ไม่ใช่ web tier',
@@ -280,34 +280,41 @@ const PROJECTS = [
 },
 {
   id:'ai', title:'University AI Gateway', category:'AI platform', status:'Production',
-  stack:['LiteLLM','vLLM','LibreChat','Docker','Entra ID'],
+  diagram:lang=>aiDiagram(lang),
+  stack:['LiteLLM','vLLM','LibreChat','NVIDIA L40S','Qwen','Typhoon','GLM','Foundation-sec','Microsoft 365 / Entra ID'],
   en:{
-    summary:'LLM service for staff and students through a central gateway, with models, quotas and access controlled in one place.',
-    facts:{'Role':'Deploy & operate','Period':'2026 –','Hosting':'Self-hosted + API'},
-    arch:[['Client','LibreChat','web UI, SSO'],['Gateway','LiteLLM','keys, quota, logging'],['Local','vLLM','on-prem models'],['External','Provider APIs','external models']],
-    problem:'Departments had started using external AI services on their own, so costs were uncontrolled and internal data was at risk of leaking.',
+    summary:'A university-wide AI service: staff and students sign in with Microsoft 365, systems and developers use API keys, and every request goes through one gateway with daily token budgets and university-wide usage monitoring. Models run locally on two GPU servers with six NVIDIA L40S cards.',
+    facts:{'Role':'Deploy & operate','Users':'University-wide','Access':'Microsoft 365 · API keys','GPUs':'2 servers · 6 × L40S'},
+    arch:[['Users','Staff & students','Microsoft 365 sign-in'],['Client','LibreChat · API keys','chat and systems'],['Gateway','LiteLLM','budgets, routing, logs'],['Models','vLLM','Qwen ×3 · Typhoon · GLM · Foundation-sec'],['GPU','2 servers','6 × NVIDIA L40S']],
+    problem:'Departments had started using external AI services on their own, so costs were uncontrolled and internal data was at risk of leaking. The university needed one service everyone could use safely, and that other systems could build on.',
     approach:[
-      ['One gateway','Every user goes through LiteLLM, so keys, quotas and logs live in one place.'],
-      ['Route by sensitivity','Work involving internal data goes to models served on-prem with vLLM.'],
-      ['Tie to SSO','LibreChat uses university accounts, so permissions and quotas map to individuals.'],
+      ['One gateway for everything','Every request, from the chat UI or from an API key, goes through LiteLLM, so access, usage and logs live in one place.'],
+      ['Sign in with Microsoft 365','LibreChat uses university accounts through Entra ID, so access and budgets map to real people and end when they leave.'],
+      ['API keys for systems and developers','Internal systems and developers get their own API keys on the same gateway; the SOC triage pipeline uses one to summarize alerts without sending data outside.'],
+      ['Daily token budgets','Each user has a daily token allowance, which keeps the GPUs fair for everyone and makes load predictable.'],
+      ['Local models, load-balanced','Qwen runs as three replicas on separate GPUs and the gateway balances requests across them. Typhoon handles Thai, GLM adds a second general model, and Foundation-sec serves security work, all on two servers with three L40S each.'],
+      ['Monitor the whole university','Usage is visible per user, per API key and per model across the university, so heavy use and abuse show up early.'],
     ],
-    outcomes:[],
-    lessons:'Setting per-user quotas from day one is far easier than adding limits later.',
-    security:'Prompt content logging is limited under the personal data policy, and internal data is not sent to external providers.'
+    outcomes:[['6','NVIDIA L40S GPUs across 2 servers'],['4','local model families (Qwen, Typhoon, GLM, Foundation-sec)'],['3','load-balanced Qwen replicas']],
+    lessons:'Setting per-user budgets from day one is far easier than adding limits later. Running several replicas of the most popular model behind the gateway matters more than adding more models.',
+    security:'Prompt content logging is limited under the personal data policy, internal data stays on local models, and no hostnames or endpoints are shown here.'
   },
   th:{
-    summary:'ให้บริการ LLM แก่บุคลากรและนักศึกษาผ่าน gateway กลาง ควบคุมโมเดล โควตา และการเข้าถึงได้จากจุดเดียว',
-    facts:{'บทบาท':'ติดตั้งและดูแล','ช่วงเวลา':'2026 –','Hosting':'Self-hosted + API'},
-    arch:[['Client','LibreChat','web UI, SSO'],['Gateway','LiteLLM','keys, quota, logging'],['Local','vLLM','โมเดลในองค์กร'],['External','Provider APIs','โมเดลภายนอก']],
-    problem:'หน่วยงานต่าง ๆ เริ่มใช้บริการ AI ภายนอกกันเอง ทำให้ควบคุมค่าใช้จ่ายไม่ได้และมีความเสี่ยงที่ข้อมูลภายในจะหลุดออกไป',
+    summary:'บริการ AI สำหรับทั้งมหาวิทยาลัย บุคลากรและนักศึกษา login ด้วย Microsoft 365 ระบบและนักพัฒนาใช้ API key ทุก request ผ่าน gateway เดียวที่มีโควตา token รายวัน และ monitor การใช้งานได้ทั้งมหาวิทยาลัย โมเดลรันในองค์กรบน GPU server 2 เครื่อง รวม NVIDIA L40S 6 ใบ',
+    facts:{'บทบาท':'ติดตั้งและดูแล','ผู้ใช้':'ทั้งมหาวิทยาลัย','การเข้าถึง':'Microsoft 365 · API key','GPU':'2 server · L40S × 6'},
+    arch:[['Users','บุคลากร · นักศึกษา','login ด้วย M365'],['Client','LibreChat · API key','แชตและระบบ'],['Gateway','LiteLLM','โควตา, routing, log'],['Models','vLLM','Qwen ×3 · Typhoon · GLM · Foundation-sec'],['GPU','2 server','NVIDIA L40S × 6']],
+    problem:'หน่วยงานต่าง ๆ เริ่มใช้บริการ AI ภายนอกกันเอง ทำให้ควบคุมค่าใช้จ่ายไม่ได้และมีความเสี่ยงที่ข้อมูลภายในจะหลุดออกไป มหาวิทยาลัยจึงต้องมีบริการเดียวที่ทุกคนใช้ได้อย่างปลอดภัย และระบบอื่นต่อยอดได้',
     approach:[
-      ['Gateway เดียว','ผู้ใช้ทุกคนเข้าผ่าน LiteLLM เพื่อให้มี key, quota และ log อยู่ที่เดียว'],
-      ['แยกโมเดลตามความอ่อนไหว','งานที่มีข้อมูลภายในส่งไปยังโมเดลที่รันบน vLLM ในองค์กร'],
-      ['ผูกกับ SSO','LibreChat ใช้บัญชีมหาวิทยาลัย จึงผูกสิทธิ์และโควตากับตัวบุคคลได้'],
+      ['Gateway เดียวสำหรับทุกอย่าง','ทุก request ทั้งจากหน้าแชตและจาก API key ผ่าน LiteLLM ทำให้สิทธิ์ การใช้งาน และ log อยู่ที่เดียว'],
+      ['Login ด้วย Microsoft 365','LibreChat ใช้บัญชีมหาวิทยาลัยผ่าน Entra ID สิทธิ์และโควตาจึงผูกกับตัวบุคคล และหมดสิทธิ์เมื่อพ้นสภาพ'],
+      ['API key สำหรับระบบและนักพัฒนา','ระบบภายในและนักพัฒนาได้ API key ของตัวเองบน gateway เดียวกัน เช่น SOC triage pipeline ใช้สรุป alert โดยไม่ส่งข้อมูลออกภายนอก'],
+      ['โควตา token รายวัน','ผู้ใช้แต่ละคนมีโควตา token ต่อวัน ทำให้ทุกคนได้ใช้ GPU อย่างเป็นธรรมและคาดการณ์โหลดได้'],
+      ['โมเดลในองค์กรแบบ load balance','Qwen รัน 3 replica บน GPU คนละใบ และ gateway กระจาย request ให้ Typhoon ใช้กับงานภาษาไทย GLM เป็นโมเดลทั่วไปอีกตัว และ Foundation-sec สำหรับงาน security ทั้งหมดอยู่บน server 2 เครื่อง เครื่องละ L40S 3 ใบ'],
+      ['Monitor ได้ทั้งมหาวิทยาลัย','เห็นการใช้งานแยกตามผู้ใช้ API key และโมเดลทั้งมหาวิทยาลัย การใช้งานหนักหรือผิดวัตถุประสงค์จึงเห็นได้เร็ว'],
     ],
-    outcomes:[],
-    lessons:'การกำหนดโควตาต่อผู้ใช้ตั้งแต่วันแรกง่ายกว่าการมาจำกัดทีหลังมาก',
-    security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล และไม่ส่งข้อมูลภายในไปยังผู้ให้บริการภายนอก'
+    outcomes:[['6','NVIDIA L40S บน server 2 เครื่อง'],['4','กลุ่มโมเดลในองค์กร (Qwen, Typhoon, GLM, Foundation-sec)'],['3','replica ของ Qwen ที่ทำ load balance']],
+    lessons:'การกำหนดโควตาต่อผู้ใช้ตั้งแต่วันแรกง่ายกว่าการมาจำกัดทีหลังมาก และการรันโมเดลที่คนใช้มากที่สุดหลาย replica หลัง gateway สำคัญกว่าการเพิ่มจำนวนโมเดล',
+    security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล ข้อมูลภายในอยู่กับโมเดลในองค์กร และไม่แสดง hostname หรือ endpoint ในหน้านี้'
   }
 },
 {
@@ -502,7 +509,7 @@ function examDiagram(lang){
     fs:['FILES','Shared storage',['moodledata ใช้ร่วมทุก node']],
     mx:['SQL PROXY','MaxScale',['ส่ง query ไป node ที่พร้อม']],
     db:['DATABASE','MariaDB cluster × 7',['ข้อมูลทำซ้ำทุก node']],
-    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['การเรียนการสอนประจำวัน','ไม่แย่งทรัพยากรกับการสอบ']],
+    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['Redis + shared storage ของตัวเอง','การเรียนการสอนประจำวัน · ไม่แย่งกับการสอบ']],
     lg:['เส้นทาง request','state ที่ใช้ร่วมกัน']
   }:{
     edge:'Every server sits behind the WAF · exams run apart from e-Learning',
@@ -513,7 +520,7 @@ function examDiagram(lang){
     fs:['FILES','Shared storage',['moodledata on every node']],
     mx:['SQL PROXY','MaxScale',['routes to healthy nodes']],
     db:['DATABASE','MariaDB cluster × 7',['replicated nodes']],
-    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['daily teaching load','never competes with exams']],
+    el:['SEPARATE PLATFORM','e-Learning · Moodle × 5',['own Redis + shared storage','daily teaching · never competes with exams']],
     lg:['Request path','Shared state']
   };
   const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -546,6 +553,66 @@ function examDiagram(lang){
   <path class="alert" d="M322,258 C322,300 322,330 322,348" marker-end="url(#ea)"/>
   <path class="share" d="M634,160 C656,160 652,100 674,100" marker-end="url(#es)"/>
   <path class="share" d="M634,200 L674,200" marker-end="url(#es)"/>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
+}
+
+/* ---------- Conceptual diagram (AI gateway) ---------- */
+function aiDiagram(lang){
+  const L=lang==='th'?{
+    edge:'ทั้งมหาวิทยาลัย · login ด้วย Microsoft 365 หรือ API key · ทุก request ผ่าน gateway เดียว',
+    us:['USERS','บุคลากร · นักศึกษา',['ทั้งมหาวิทยาลัย']],
+    id:['IDENTITY','Microsoft 365',['Entra ID · SSO']],
+    ui:['CLIENT','LibreChat',['web UI · แชต']],
+    ap:['API KEYS','ระบบและนักพัฒนา',['API key ของแต่ละระบบ','เช่น SOC triage']],
+    gw:['GATEWAY','LiteLLM',['ตรวจสิทธิ์ M365 · API key','โควตา token รายวัน','load balance Qwen × 3','usage log']],
+    mo:['LOCAL MODELS · vLLM','Model pool',['Qwen × 3 · load balanced','Typhoon · ภาษาไทย','GLM','Foundation-sec · security']],
+    gpu:['GPU','2 server · L40S × 6',['เครื่องละ 3 ใบ']],
+    mn:['MONITORING','Usage dashboard',['ต่อผู้ใช้ · ต่อ API key','ต่อโมเดล · ทั้งมหาวิทยาลัย']],
+    lg:['เส้นทาง request','ตัวตนและข้อมูลการใช้งาน']
+  }:{
+    edge:'University-wide · Microsoft 365 sign-in or API key · every request goes through one gateway',
+    us:['USERS','Staff & students',['whole university']],
+    id:['IDENTITY','Microsoft 365',['Entra ID · SSO']],
+    ui:['CLIENT','LibreChat',['web UI · chat']],
+    ap:['API KEYS','Systems & developers',['a key per system','e.g. SOC triage']],
+    gw:['GATEWAY','LiteLLM',['M365 sign-in · API keys','daily token budget','load-balances Qwen × 3','usage log']],
+    mo:['LOCAL MODELS · vLLM','Model pool',['Qwen × 3 · load balanced','Typhoon · Thai','GLM','Foundation-sec · security']],
+    gpu:['GPU','2 servers · L40S × 6',['3 cards per server']],
+    mn:['MONITORING','Usage dashboard',['per user · per API key','per model · university-wide']],
+    lg:['Request path','Identity & usage data']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const gpus=(x,y)=>[0,1,2,3,4,5].map(i=>`<rect x="${x+i*20+(i>2?14:0)}" y="${y}" width="15" height="10" rx="2" fill="var(--accent-2)" opacity=".65"/>`).join('');
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 430" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของ AI gateway':'Conceptual AI gateway diagram'}">
+  <defs>
+    <marker id="ga" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="gs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${box(10,80,W,80,L.us)}
+  ${box(10,300,W,80,L.id,'intel')}
+  ${box(232,80,W,80,L.ui)}
+  ${box(232,240,W,96,L.ap)}
+  ${box(454,120,W,146,L.gw,'core')}
+  ${box(676,60,W,146,L.mo,'core')}
+  ${box(676,236,W,96,L.gpu,'core')}${gpus(690,312)}
+  ${box(870,236,W-10,96,L.mn)}
+
+  <path class="alert" d="M190,120 L230,120" marker-end="url(#ga)"/>
+  <path class="alert" d="M412,120 C434,120 432,170 452,170" marker-end="url(#ga)"/>
+  <path class="alert" d="M412,288 C434,288 432,232 452,232" marker-end="url(#ga)"/>
+  <path class="alert" d="M634,180 C654,180 654,133 674,133" marker-end="url(#ga)"/>
+  <path class="alert" d="M766,206 L766,234" marker-end="url(#ga)"/>
+  <path class="share" d="M100,298 L100,162" marker-end="url(#gs)"/>
+  <path class="share" d="M190,350 C220,350 214,150 230,146" marker-end="url(#gs)"/>
+  <path class="share" d="M544,266 C544,400 955,410 955,334" marker-end="url(#gs)"/>
 </svg>
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
 }
