@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Case study | Wichukorn Dandecha</title>
 <meta name="theme-color" content="#070D1A">
-<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway and post-quantum admin VPN">
+<meta name="description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway, penetration testing and post-quantum admin VPN">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Case study | Wichukorn Dandecha">
-<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway and post-quantum admin VPN">
+<meta property="og:description" content="Case studies by Wichukorn Dandecha: SOC triage pipeline, SSO, DevSecOps deployment, high-availability exam platform, Kubernetes hosting platform (planned), AI gateway, penetration testing and post-quantum admin VPN">
 <meta property="og:url" content="https://ballcs.github.io/project.html">
 <meta property="og:image" content="https://ballcs.github.io/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -360,6 +360,45 @@ const PROJECTS = [
     outcomes:[['6','NVIDIA L40S บน server 2 เครื่อง'],['4','กลุ่มโมเดลในองค์กร (Qwen, Typhoon, GLM, Foundation-sec)'],['3','replica ของ Qwen ที่ทำ load balance']],
     lessons:'จำกัดเฉพาะส่วนที่มีค่าใช้จ่าย โมเดลในองค์กรที่ใช้ได้ไม่จำกัดช่วยให้คนหันมาใช้ ส่วนเพดานรายวันของโมเดลภายนอกทำให้ค่าใช้จ่ายคาดการณ์ได้ และการรันโมเดลที่คนใช้มากที่สุดหลาย replica หลัง gateway สำคัญกว่าการเพิ่มจำนวนโมเดล',
     security:'จำกัดการ log เนื้อหา prompt ตามนโยบายข้อมูลส่วนบุคคล ค่าเริ่มต้นคือโมเดลในองค์กร ส่วนโมเดลภายนอกต้องเลือกใช้ผ่าน gateway และไม่แสดง hostname หรือ endpoint ในหน้านี้'
+  }
+},
+{
+  id:'pentest', title:'Annual penetration testing', category:'Offensive security', status:'Annual',
+  diagram:lang=>pentestDiagram(lang),
+  stack:['TheHive','AI-assisted (HexStrike)','Recon & scanning','Web & network testing','Manual testing','Wazuh'],
+  en:{
+    summary:'Each year I run penetration tests against the university’s own systems. I drive every step and review every result; an AI assistant runs the repetitive parts such as recon through HexStrike, and where a tool is missing I do that step by hand. Findings live in TheHive until they are fixed and a retest confirms it.',
+    facts:{'Role':'Plan, test & report','Cycle':'Every year','Tracking':'TheHive','Control':'Human-driven, every step'},
+    arch:[['Scope','Approved targets','rules of engagement'],['Recon & test','AI-assisted (HexStrike)','I run & review each step'],['Track','TheHive','a case per system'],['Report','System owners','fix + deadline'],['Retest','Verify the fix','close the case']],
+    problem:'Systems change all year and many are built or run by different departments. Without regular, authorised testing, weaknesses would be found by outsiders first. But testing alone is not enough: results that are reported and never fixed add no safety, so the work has to run all the way to a verified fix.',
+    approach:[
+      ['Agree the scope first','Testing only covers systems and targets approved in advance, with clear rules of engagement, so the work stays inside the university’s own estate.'],
+      ['Drive it step by step','I run each stage myself and read every result. An AI assistant speeds up repetitive work such as recon via HexStrike; when a tool is not available for a step, I do it manually instead.'],
+      ['Track every finding in TheHive','Each tested system is a case in TheHive and every finding is recorded there, so nothing is lost and progress is visible from discovery to fix.'],
+      ['Report to the system owners','Each owner gets a clear report with a severity and a deadline to fix, and I coordinate the remediation rather than just handing over a list.'],
+      ['Retest before closing','A finding is only closed after the fix is verified by a retest, so the report reflects real risk, not a to-do list.'],
+      ['Feed results back to the SOC','Patterns found during testing become new detection rules in the SIEM, so the defensive side learns from the offensive side.'],
+    ],
+    outcomes:[['Yearly','testing cycle across approved systems'],['Verified','findings closed only after retest'],['SOC','detection rules fed from findings']],
+    lessons:'An assistant is useful for the repetitive stages, but judgement and scope control stay with a person: a tool pointed at the wrong target, or a finding that is never fixed, is where the real risk lives. Keeping everything in one case tracker is what turns a scan into a closed loop.',
+    security:'This page describes the process only. No findings, target systems, tool detail, or results are published, and all testing is on the university’s own authorised systems.'
+  },
+  th:{
+    summary:'ทุกปีผมทำ penetration testing กับระบบของมหาวิทยาลัยเอง โดยผมเป็นคนสั่งและตรวจผลทุกขั้นตอน มี AI ช่วยรันงานที่ทำซ้ำ ๆ เช่น recon ผ่าน HexStrike และถ้าขั้นไหนไม่มีเครื่องมือรองรับก็ทำเอง ทุกสิ่งที่ตรวจพบถูกบันทึกใน TheHive จนกว่าจะแก้ไขและทดสอบซ้ำผ่าน',
+    facts:{'บทบาท':'วางแผน ทดสอบ และรายงาน','รอบ':'ทุกปี','ติดตามงาน':'TheHive','การควบคุม':'คนสั่งและตรวจทุกขั้น'},
+    arch:[['Scope','เป้าหมายที่อนุมัติ','rules of engagement'],['Recon & test','AI ช่วย (HexStrike)','ผมสั่งและตรวจทุกขั้น'],['Track','TheHive','หนึ่งระบบ = หนึ่ง case'],['Report','เจ้าของระบบ','พร้อมกำหนดแก้'],['Retest','ทดสอบซ้ำหลังแก้','ปิดงาน']],
+    problem:'ระบบมีการเปลี่ยนแปลงตลอดทั้งปี และหลายระบบดูแลโดยหน่วยงานต่าง ๆ ถ้าไม่มีการทดสอบตามแผนอย่างสม่ำเสมอ จุดอ่อนอาจถูกคนภายนอกพบก่อน แต่แค่ทดสอบอย่างเดียวไม่พอ สิ่งที่ตรวจพบแล้วไม่ได้แก้ก็ไม่ได้ทำให้ปลอดภัยขึ้น งานจึงต้องทำจนถึงการแก้ไขที่ยืนยันแล้ว',
+    approach:[
+      ['ตกลงขอบเขตก่อน','ทดสอบเฉพาะระบบและเป้าหมายที่ได้รับอนุมัติล่วงหน้า มี rules of engagement ชัดเจน การทำงานจึงอยู่ในขอบเขตของมหาวิทยาลัยเอง'],
+      ['สั่งและตรวจทีละขั้น','ผมรันแต่ละขั้นเองและอ่านผลทุกครั้ง มี AI ช่วยงานที่ทำซ้ำ เช่น recon ผ่าน HexStrike ขั้นไหนไม่มีเครื่องมือรองรับก็ทำเอง'],
+      ['บันทึกทุกสิ่งที่พบใน TheHive','แต่ละระบบที่ทดสอบเป็นหนึ่ง case ใน TheHive และทุกสิ่งที่ตรวจพบถูกบันทึกไว้ จึงไม่มีอะไรตกหล่น และติดตามได้ตั้งแต่พบจนแก้เสร็จ'],
+      ['รายงานเจ้าของระบบ','เจ้าของแต่ละระบบได้รายงานที่ระบุระดับความรุนแรงและกำหนดเวลาแก้ไข และผมประสานการแก้ไขให้ ไม่ใช่แค่ส่งรายการให้'],
+      ['ทดสอบซ้ำก่อนปิดงาน','สิ่งที่ตรวจพบจะปิดได้ก็ต่อเมื่อแก้แล้วและทดสอบซ้ำผ่าน รายงานจึงสะท้อนความเสี่ยงจริง ไม่ใช่แค่รายการที่รอทำ'],
+      ['ส่งผลกลับเข้า SOC','รูปแบบที่พบระหว่างทดสอบนำไปสร้าง detection rule ใหม่ใน SIEM ฝั่งป้องกันจึงได้เรียนรู้จากฝั่งทดสอบ'],
+    ],
+    outcomes:[['ทุกปี','รอบการทดสอบระบบที่ได้รับอนุมัติ'],['ยืนยันแล้ว','ปิดงานเฉพาะหลังทดสอบซ้ำผ่าน'],['SOC','detection rule ที่มาจากผลการทดสอบ']],
+    lessons:'AI ช่วยได้ดีกับงานที่ทำซ้ำ แต่การตัดสินใจและการคุมขอบเขตยังเป็นของคน เครื่องมือที่เล็งผิดเป้า หรือสิ่งที่ตรวจพบแล้วไม่ได้แก้ คือจุดที่ความเสี่ยงจริงอยู่ และการเก็บทุกอย่างไว้ใน case tracker เดียวคือสิ่งที่เปลี่ยนการสแกนให้กลายเป็นวงรอบที่ปิดจบ',
+    security:'หน้านี้อธิบายเฉพาะกระบวนการ ไม่เปิดเผยสิ่งที่ตรวจพบ ระบบเป้าหมาย รายละเอียดเครื่องมือ หรือผลการทดสอบ และทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติเท่านั้น'
   }
 },
 {
@@ -748,6 +787,64 @@ function k8sDiagram(lang){
 </svg>
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
 }
+/* ---------- Conceptual diagram (pentest) — กระบวนการล้วน ไม่มีเป้าหมาย/ช่องโหว่/เครื่องมือละเอียด ---------- */
+function pentestDiagram(lang){
+  const L=lang==='th'?{
+    edge:'ทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติ · คนสั่งและตรวจทุกขั้น',
+    sc:['SCOPE','เป้าหมายที่อนุมัติ',['rules of engagement','ตกลงก่อนเริ่ม']],
+    rc:['RECON & TEST','ผมสั่งทีละขั้น',['AI ช่วย (HexStrike)','ไม่มี tool = ทำเอง']],
+    tr:['TRACK','TheHive',['หนึ่งระบบ = หนึ่ง case','บันทึกทุกสิ่งที่พบ']],
+    rp:['REPORT','เจ้าของระบบ',['ระดับความรุนแรง','กำหนดเวลาแก้']],
+    rt:['RETEST','ทดสอบซ้ำหลังแก้',['ยืนยันแล้วจึงปิดงาน']],
+    soc:['SIEM / SOC','detection rule',['ได้จากรูปแบบที่พบ']],
+    hu:['HUMAN','คนควบคุม',['ตรวจผลทุกขั้น','คุมขอบเขต']],
+    s1:'ผลที่พบ → สร้าง rule',
+    lg:['ขั้นตอนการทดสอบ','ป้อนกลับเข้า SOC','คนเป็นผู้ควบคุม']
+  }:{
+    edge:'Only the university’s own approved systems · human-driven and reviewed at every step',
+    sc:['SCOPE','Approved targets',['rules of engagement','agreed up front']],
+    rc:['RECON & TEST','I drive each step',['AI-assisted (HexStrike)','no tool = by hand']],
+    tr:['TRACK','TheHive',['a case per system','every finding logged']],
+    rp:['REPORT','System owners',['severity','deadline to fix']],
+    rt:['RETEST','Verify the fix',['close only when verified']],
+    soc:['SIEM / SOC','detection rules',['built from patterns found']],
+    hu:['HUMAN','In control',['reviews every result','keeps scope']],
+    s1:'findings → new rules',
+    lg:['Testing stages','Fed back to SOC','Human in control']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const W=180;
+  return `<svg class="dg" viewBox="0 0 1060 430" role="img" aria-label="${lang==='th'?'แผนภาพแนวคิดของกระบวนการ penetration testing':'Conceptual penetration-testing process diagram'}">
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="ps" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${box(10,150,W,100,L.sc)}
+  ${box(232,150,W,100,L.rc,'core')}
+  ${box(454,150,W,100,L.tr,'core')}
+  ${box(676,150,W,100,L.rp)}
+  ${box(870,150,W-10,100,L.rt,'core')}
+  ${box(232,300,W,92,L.hu,'human')}
+  ${box(454,300,W+222,92,L.soc,'intel')}
+
+  <path class="alert" d="M190,200 L230,200" marker-end="url(#pa)"/>
+  <path class="alert" d="M412,200 L452,200" marker-end="url(#pa)"/>
+  <path class="alert" d="M634,200 L674,200" marker-end="url(#pa)"/>
+  <path class="alert" d="M856,200 L868,200" marker-end="url(#pa)"/>
+  <path class="alert" d="M322,300 L322,254" marker-end="url(#pa)"/>
+
+  <path class="share" d="M544,254 L544,296" marker-end="url(#ps)"/>
+  <text class="lg" x="554" y="284">${esc(L.s1)}</text>
+</svg>
+<div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span><span><i class="h"></i>${L.lg[2]}</span></div>`;
+}
+
 /* ---------- Render ---------- */
 const root=document.documentElement;
 const params=new URLSearchParams(location.search);
