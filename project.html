@@ -181,10 +181,10 @@ const PROJECTS = [
   stack:['Microsoft Entra ID','OIDC','SAML','M365'],
   diagram:lang=>ssoDiagram(lang),
   en:{
-    summary:'Moving university applications onto Entra ID over OIDC with enforced MFA, so apps no longer handle passwords, with a standby on-prem fallback designed for cloud outages.',
+    summary:'Moving university applications from LDAP to Entra ID over OIDC with enforced MFA, so apps receive a token instead of the user’s password, with a standby on-prem fallback designed for cloud outages.',
     facts:{'Role':'Design & integrate','Period':'2026 –','Apps on SSO':'~10','Protocol':'OIDC / SAML'},
     arch:[['User','Students / staff','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Standby','Keycloak + AD','fallback · in design'],['Apps','University apps','OIDC clients']],
-    problem:'Applications used to authenticate users with their own forms and directory lookups, so each app handled the user’s password itself and kept its own user records. That made it hard to enforce MFA consistently and to offboard cleanly. Moving sign-in to Microsoft 365 means apps no longer handle passwords; the remaining concern is depending on a single cloud identity provider, so a lightweight on-prem fallback is being designed for outages.',
+    problem:'Systems used to authenticate against Active Directory over LDAP, with users typing their password into each app’s own login form, so the password passed through many systems and MFA could not be enforced at that layer. Moving to Microsoft 365 (Entra ID) means users authenticate once at Microsoft and apps receive only a token, never the password — narrowing where a password could leak and letting MFA be enforced across the organisation. The remaining concern is depending on a single cloud identity provider, so an on-prem fallback is being designed for outages.',
     approach:[
       ['Inventory apps','Group applications by supported protocol and importance to teaching and learning.'],
       ['Integrate in waves','Start with low-risk apps and verify claim and group mapping before expanding.'],
@@ -195,10 +195,10 @@ const PROJECTS = [
     security:'Moving sign-in to Entra ID keeps passwords out of the applications and puts MFA and conditional access in one place. The fallback is treated as the sensitive part: it is kept on standby, scoped narrowly, enabled only when genuinely needed and disabled again on recovery, with its own MFA, so it stays a safety net rather than a weaker way in. No hostnames, addresses or activation details are shown here.'
   },
   th:{
-    summary:'ย้ายการยืนยันตัวตนของแอปในมหาวิทยาลัยไปใช้ Entra ID ผ่าน OIDC พร้อมบังคับ MFA เพื่อให้แอปไม่ต้องถือรหัสผ่านอีก และออกแบบทางสำรอง on-prem แบบ standby เผื่อคลาวด์ล่ม',
+    summary:'ย้ายการยืนยันตัวตนของแอปในมหาวิทยาลัยจาก LDAP ไปใช้ Entra ID ผ่าน OIDC พร้อมบังคับ MFA เพื่อให้แอปได้รับเพียง token แทนรหัสผ่านของผู้ใช้ และออกแบบทางสำรอง on-prem แบบ standby เผื่อคลาวด์ล่ม',
     facts:{'บทบาท':'ออกแบบและ integrate','ช่วงเวลา':'2026 –','แอปที่ใช้ SSO':'~10 ระบบ','Protocol':'OIDC / SAML'},
     arch:[['User','นักศึกษา / บุคลากร','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Standby','Keycloak + AD','fallback · กำลังออกแบบ'],['Apps','University apps','OIDC clients']],
-    problem:'เดิมแต่ละแอป authenticate ผู้ใช้ด้วยฟอร์มและการตรวจกับ directory ของตัวเอง ทำให้แอปต้องถือรหัสผ่านของผู้ใช้เองและเก็บข้อมูลผู้ใช้แยกกัน การบังคับ MFA ให้สม่ำเสมอและการ offboarding จึงทำได้ยาก การย้าย sign-in ไปใช้ Microsoft 365 ทำให้แอปไม่ต้องถือรหัสผ่านอีกต่อไป ความกังวลที่เหลือคือการพึ่ง identity provider บนคลาวด์ตัวเดียว จึงออกแบบทางสำรอง on-prem แบบเบาๆ ไว้เผื่อคลาวด์ล่ม',
+    problem:'เดิมแต่ละระบบ authenticate กับ Active Directory ผ่าน LDAP โดยผู้ใช้กรอกรหัสผ่านที่หน้า login ของแต่ละแอป ทำให้รหัสผ่านต้องผ่านหลายระบบ และบังคับ MFA ที่ชั้นนี้ไม่ได้ การย้ายไปใช้ Microsoft 365 (Entra ID) ทำให้ผู้ใช้ยืนยันตัวตนที่ Microsoft ที่เดียว แอปได้รับเพียง token ไม่เห็นรหัสผ่าน จึงลดจุดที่รหัสผ่านอาจรั่ว และบังคับ MFA ได้ทั้งองค์กร ความกังวลที่เหลือคือการพึ่ง identity provider บนคลาวด์ตัวเดียว จึงออกแบบทางสำรอง on-prem ไว้เผื่อคลาวด์ล่ม',
     approach:[
       ['สำรวจแอป','จัดกลุ่มแอปตาม protocol ที่รองรับและความสำคัญต่อการเรียนการสอน'],
       ['Integrate แบบเป็นระลอก','เริ่มจากแอปความเสี่ยงต่ำ ตรวจ claim mapping และ group ก่อนขยายผล'],
