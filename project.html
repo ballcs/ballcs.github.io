@@ -179,33 +179,34 @@ const PROJECTS = [
 {
   id:'sso', title:'Unified SSO with Entra ID', category:'Identity', status:'Rolling out',
   stack:['Microsoft Entra ID','OIDC','SAML','M365'],
+  diagram:lang=>ssoDiagram(lang),
   en:{
-    summary:'Moving university applications onto Entra ID over OIDC with enforced MFA, and designing an on-prem secondary IdP for cloud outages.',
+    summary:'Moving university applications onto Entra ID over OIDC with enforced MFA, so apps no longer handle passwords, with a standby on-prem fallback designed for cloud outages.',
     facts:{'Role':'Design & integrate','Period':'2026 –','Apps on SSO':'~10','Protocol':'OIDC / SAML'},
-    arch:[['User','Students / staff','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Next phase','Secondary IdP','on-prem · in design'],['Apps','University apps','OIDC clients']],
-    problem:'Each system had its own user database and passwords, so offboarding was incomplete and MFA could not be enforced. Relying on a single cloud IdP also means every system locks out at once when the cloud goes down.',
+    arch:[['User','Students / staff','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Standby','Keycloak + AD','fallback · in design'],['Apps','University apps','OIDC clients']],
+    problem:'Applications used to authenticate users with their own forms and directory lookups, so each app handled the user’s password itself and kept its own user records. That made it hard to enforce MFA consistently and to offboard cleanly. Moving sign-in to Microsoft 365 means apps no longer handle passwords; the remaining concern is depending on a single cloud identity provider, so a lightweight on-prem fallback is being designed for outages.',
     approach:[
       ['Inventory apps','Group applications by supported protocol and importance to teaching and learning.'],
       ['Integrate in waves','Start with low-risk apps and verify claim and group mapping before expanding.'],
-      ['Next: secondary IdP','Designing an on-prem IdP that authenticates against the internal directory with its own MFA, so critical apps such as the LMS stay available during an Entra ID outage without opening an MFA bypass.'],
+      ['Next: standby fallback','Designing a standby fallback for the rare case where the cloud identity provider is unavailable, so sign-in can continue for a short window. It is deliberately a standby, not part of the normal path, stays closed until it is genuinely needed, keeps its own MFA, and returns to the cloud provider automatically once service is back. Scope and activation are kept controlled so the fallback cannot become a weaker way in.'],
     ],
     outcomes:[['~10','university applications on SSO with MFA']],
     lessons:'Most problems were not in the protocol but in user records that did not match between applications. Identity matching should start before integration.',
-    security:'Failover must not become an MFA bypass, so the secondary IdP is scoped to the applications that truly need it.'
+    security:'Moving sign-in to Entra ID keeps passwords out of the applications and puts MFA and conditional access in one place. The fallback is treated as the sensitive part: it is kept on standby, scoped narrowly, enabled only when genuinely needed and disabled again on recovery, with its own MFA, so it stays a safety net rather than a weaker way in. No hostnames, addresses or activation details are shown here.'
   },
   th:{
-    summary:'ย้ายการยืนยันตัวตนของแอปในมหาวิทยาลัยไปใช้ Entra ID ผ่าน OIDC พร้อมบังคับ MFA และกำลังออกแบบ IdP สำรอง on-prem สำหรับกรณีคลาวด์ล่ม',
+    summary:'ย้ายการยืนยันตัวตนของแอปในมหาวิทยาลัยไปใช้ Entra ID ผ่าน OIDC พร้อมบังคับ MFA เพื่อให้แอปไม่ต้องถือรหัสผ่านอีก และออกแบบทางสำรอง on-prem แบบ standby เผื่อคลาวด์ล่ม',
     facts:{'บทบาท':'ออกแบบและ integrate','ช่วงเวลา':'2026 –','แอปที่ใช้ SSO':'~10 ระบบ','Protocol':'OIDC / SAML'},
-    arch:[['User','นักศึกษา / บุคลากร','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Next phase','Secondary IdP','on-prem · กำลังออกแบบ'],['Apps','University apps','OIDC clients']],
-    problem:'แต่ละระบบมีฐานข้อมูลผู้ใช้และรหัสผ่านของตัวเอง ทำให้ offboarding ไม่ทั่วถึงและบังคับ MFA ไม่ได้ อีกทั้งถ้าพึ่ง IdP บนคลาวด์เพียงตัวเดียว เมื่อคลาวด์ล่มทุกระบบจะเข้าไม่ได้พร้อมกัน',
+    arch:[['User','นักศึกษา / บุคลากร','browser, mobile'],['Primary IdP','Entra ID','MFA, conditional access'],['Standby','Keycloak + AD','fallback · กำลังออกแบบ'],['Apps','University apps','OIDC clients']],
+    problem:'เดิมแต่ละแอป authenticate ผู้ใช้ด้วยฟอร์มและการตรวจกับ directory ของตัวเอง ทำให้แอปต้องถือรหัสผ่านของผู้ใช้เองและเก็บข้อมูลผู้ใช้แยกกัน การบังคับ MFA ให้สม่ำเสมอและการ offboarding จึงทำได้ยาก การย้าย sign-in ไปใช้ Microsoft 365 ทำให้แอปไม่ต้องถือรหัสผ่านอีกต่อไป ความกังวลที่เหลือคือการพึ่ง identity provider บนคลาวด์ตัวเดียว จึงออกแบบทางสำรอง on-prem แบบเบาๆ ไว้เผื่อคลาวด์ล่ม',
     approach:[
       ['สำรวจแอป','จัดกลุ่มแอปตาม protocol ที่รองรับและความสำคัญต่อการเรียนการสอน'],
       ['Integrate แบบเป็นระลอก','เริ่มจากแอปความเสี่ยงต่ำ ตรวจ claim mapping และ group ก่อนขยายผล'],
-      ['ขั้นถัดไป: IdP สำรอง','กำลังออกแบบ IdP on-prem ที่ตรวจกับ directory ภายในโดยตรง และมี MFA ของตัวเอง เพื่อให้แอปวิกฤต (เช่น LMS) ยังใช้งานได้เมื่อ Entra ID ล่ม โดยไม่เปิดช่องให้ข้าม MFA'],
+      ['ขั้นถัดไป: ทางสำรองแบบ standby','ออกแบบทางสำรองเผื่อกรณีที่ identity provider บนคลาวด์ใช้งานไม่ได้ ซึ่งเกิดไม่บ่อย เพื่อให้ยัง sign-in ได้ในช่วงสั้นๆ โดยตั้งใจให้เป็น standby ไม่ใช่เส้นทางปกติ ปิดไว้จนกว่าจะจำเป็นจริง มี MFA ของตัวเอง และกลับไปใช้คลาวด์อัตโนมัติเมื่อบริการกลับมา ทั้งนี้คุมขอบเขตและการเปิดใช้อย่างรัดกุม เพื่อไม่ให้ทางสำรองกลายเป็นช่องทางเข้าที่อ่อนแอกว่า'],
     ],
     outcomes:[['~10','ระบบของมหาวิทยาลัยที่ใช้ SSO พร้อม MFA แล้ว']],
     lessons:'ปัญหาส่วนใหญ่ไม่ได้อยู่ที่ protocol แต่อยู่ที่ข้อมูลผู้ใช้ในแต่ละแอปที่ไม่ตรงกัน การทำ identity matching ควรเริ่มก่อนการ integrate',
-    security:'ขั้นตอน failover ต้องไม่กลายเป็นช่องทางข้าม MFA จึงจำกัดขอบเขตของ IdP สำรองให้เหลือเฉพาะแอปที่จำเป็น'
+    security:'การย้าย sign-in ไปใช้ Entra ID ทำให้รหัสผ่านไม่อยู่ในแอป และรวม MFA กับ conditional access ไว้ที่เดียว ส่วนทางสำรองถือเป็นจุดที่อ่อนไหวจึงดูแลเป็นพิเศษ เก็บไว้เป็น standby จำกัดขอบเขตให้แคบ เปิดใช้เฉพาะเมื่อจำเป็นจริงและปิดเมื่อบริการกลับมา พร้อม MFA ของตัวเอง เพื่อให้ยังเป็นตาข่ายนิรภัย ไม่ใช่ช่องทางเข้าที่อ่อนแอกว่า ทั้งนี้ไม่เปิดเผย hostname, address หรือรายละเอียดการเปิดใช้ในหน้านี้'
   }
 },
 {
@@ -786,6 +787,50 @@ function k8sDiagram(lang){
 <div class="dg-legend"><span><i></i>${L.lg[0]}</span><span><i class="s"></i>${L.lg[1]}</span></div>`;
 }
 /* ---------- Conceptual diagram (pentest) — กระบวนการล้วน ไม่มีเป้าหมาย/ช่องโหว่/เครื่องมือละเอียด ---------- */
+function ssoDiagram(lang){
+  const L=lang==='th'?{
+    edge:'ปกติ sign-in ที่ Microsoft · ทางสำรอง on-prem เป็น standby เผื่อคลาวด์ล่ม',
+    us:['USER','นักศึกษา / บุคลากร',['browser, mobile']],
+    ap:['APP','ระบบของมหาวิทยาลัย',['ไม่ถือรหัสผ่านอีกต่อไป','OIDC / SAML']],
+    ms:['PRIMARY · ปกติ','Microsoft Entra ID',['MFA · conditional access','ยืนยันตัวตนหลัก']],
+    fb:['STANDBY','ทางสำรอง on-prem',['ปิดไว้ · เปิดเฉพาะตอนจำเป็น','มี MFA ของตัวเอง · กลับอัตโนมัติ']],
+    ln:['ปกติ → Microsoft','สำรอง (ตอนคลาวด์ล่ม)']
+  }:{
+    edge:'Sign in at Microsoft normally · on-prem fallback kept on standby for cloud outages',
+    us:['USER','Students / staff',['browser, mobile']],
+    ap:['APP','University systems',['no longer handles passwords','OIDC / SAML']],
+    ms:['PRIMARY · normal','Microsoft Entra ID',['MFA · conditional access','main authentication']],
+    fb:['STANDBY','on-prem fallback',['closed · opened only when needed','own MFA · returns automatically']],
+    ln:['normal → Microsoft','fallback (cloud outage)']
+  };
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const box=(x,y,w,h,[k,t,d],cls='')=>`<g><rect class="bx ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" rx="12"/>
+    <text class="k" x="${x+14}" y="${y+22}">${k}</text><text class="t" x="${x+14}" y="${y+44}">${esc(t)}</text>
+    ${d.map((l,i)=>`<text class="d" x="${x+14}" y="${y+64+i*17}">${esc(l)}</text>`).join('')}</g>`;
+  const W=224;
+  return `<svg class="dg" viewBox="0 0 1060 400" role="img" aria-label="${lang==='th'?'แผนภาพ SSO: ปกติ sign-in ที่ Microsoft Entra ID มีทางสำรอง on-prem แบบ standby เผื่อคลาวด์ล่ม':'SSO diagram: sign-in at Microsoft Entra ID normally, with an on-prem standby fallback for cloud outages'}">
+  <defs>
+    <marker id="sa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--warn)"/></marker>
+    <marker id="sf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F2777A"/></marker>
+  </defs>
+  <rect class="band" x="4" y="6" width="1052" height="34" rx="17"/>
+  <text class="lg" x="530" y="28" text-anchor="middle">${esc(L.edge)}</text>
+
+  ${box(40,120,W,98,L.us)}
+  ${box(418,120,W,98,L.ap,'core')}
+  ${box(796,60,224,98,L.ms,'core')}
+  ${box(796,230,224,98,L.fb,'failbx')}
+
+  <!-- user -> app -->
+  <path class="alert" d="M264,169 L416,169" marker-end="url(#sa)"/>
+  <!-- app -> entra (normal) -->
+  <path class="alert" d="M642,150 C720,130 740,118 794,109" marker-end="url(#sa)"/>
+  <!-- app -> fallback (standby) -->
+  <path class="fail" d="M642,188 C720,210 740,260 794,272" marker-end="url(#sf)"/>
+</svg>
+<div class="dg-legend"><span><i></i>${L.ln[0]}</span><span><i class="f"></i>${L.ln[1]}</span></div>`;
+}
+
 function pentestDiagram(lang){
   const L=lang==='th'?{
     edge:'ทดสอบเฉพาะระบบของมหาวิทยาลัยที่ได้รับอนุมัติ · human-in-the-loop ทุกขั้น',
