@@ -422,6 +422,7 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
               <li>Administer Active Directory on Windows Server, Microsoft 365 and Google Workspace: accounts, security policies and detection of account attacks.</li>
               <li>Operate email security gateways (Proxmox Mail Gateway, FortiMail, Trend Micro Deep Discovery Email Inspector) filtering spam, phishing and malware, with logs fed into Wazuh.</li>
               <li>Operate the FortiWeb WAF that fronts every server under the university's WAF-first policy: per-application policies, false-positive tuning and Wazuh detection rules for web attacks.</li>
+              <li>Run a Kong API gateway as the layer behind the WAF: traffic reaches the WAF first, passes through the gateway for routing, authentication and rate limiting, and only then reaches the backend servers. Consolidating this onto FortiWeb is planned.</li>
               <li>Run the university's two Moodle platforms: the online exam system on 4 load-balanced web nodes with a Redis cache, MaxScale and a 7-node MariaDB cluster, and the e-Learning system on 5 web nodes with its own Redis and shared storage. A full rebuild on Kubernetes is planned for this fiscal year.</li>
               <li>Run three CMS (Contest Management System) grader instances for the academic olympiad programme at Walailak University: one for the university and one each for two partner schools, kept separate.</li>
               <li>Maintain 250+ university WordPress sites: updates, hardening and incident response.</li>
@@ -438,6 +439,7 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
               <li>ดูแลระบบ Active Directory บน Windows Server, Microsoft 365 และ Google Workspace ของมหาวิทยาลัย ทั้งบัญชีผู้ใช้ นโยบายความปลอดภัย และการตรวจจับการโจมตีบัญชี</li>
               <li>ดูแล email security gateway หลายผลิตภัณฑ์ ได้แก่ Proxmox Mail Gateway, FortiMail และ Trend Micro Deep Discovery Email Inspector (DDEI) กรอง spam, phishing และ malware ก่อนถึงกล่องจดหมาย และส่ง log เข้า Wazuh</li>
               <li>ดูแล WAF (FortiWeb) ซึ่งเป็นด่านหน้าตามนโยบายที่ทุก server ต้องวางอยู่หลัง WAF ทั้งการตั้ง policy ต่อระบบ ปรับลด false positive และเขียน rule ใน Wazuh เพื่อตรวจจับการโจมตีเว็บ</li>
+              <li>ดูแล Kong API gateway ซึ่งเป็นชั้นถัดจาก WAF โดย traffic จะผ่าน WAF ก่อน แล้ววิ่งผ่าน gateway เพื่อทำ routing, authentication และ rate limiting ก่อนถึง backend server มีแผนจะรวมงานส่วนนี้ไปไว้บน FortiWeb ในอนาคต</li>
               <li>ดูแลระบบ Moodle 2 ระบบของมหาวิทยาลัย ได้แก่ ระบบสอบออนไลน์ที่ทำ load balance บน web server 4 node พร้อม Redis cache, MaxScale และ MariaDB cluster 7 node และระบบ e-Learning บน web server 5 node พร้อม Redis และ shared storage ของตัวเอง ปีงบประมาณนี้มีแผนยกเครื่องใหม่ทั้งระบบบน Kubernetes</li>
               <li>ดูแลระบบ CMS grader (Contest Management System) ของงานโอลิมปิกวิชาการ มหาวิทยาลัยวลัยลักษณ์ 3 ระบบ แยกเป็นของมหาวิทยาลัย 1 ระบบ และของโรงเรียน 2 ระบบ</li>
               <li>ดูแลเว็บไซต์ WordPress ของหน่วยงานกว่า 250 เว็บ ทั้งการอัปเดต hardening และการรับมือเมื่อถูกโจมตี</li>
@@ -477,7 +479,7 @@ html[lang="en"] body [lang="th"],html[lang="th"] body [lang="en"]{display:none!i
       <div class="toolkit">
         <div class="tool"><h3>Detection &amp; SOC</h3><ul><li>Wazuh</li><li>Sangfor Cyber Command</li><li>FortiWeb</li><li>MISP</li><li>OpenCTI</li><li>Cortex</li><li>Shuffle</li><li>DFIR-IRIS</li></ul></div>
         <div class="tool"><h3>Identity &amp; Email</h3><ul><li>Active Directory</li><li>Microsoft Entra ID</li><li>Microsoft 365</li><li>Google Workspace</li><li>OIDC / SAML</li><li>Proxmox Mail Gateway</li><li>FortiMail</li><li>Trend Micro DDEI</li></ul></div>
-        <div class="tool"><h3>Infrastructure &amp; DevSecOps</h3><ul><li>VMware vSphere</li><li>Nutanix HCI</li><li>Proxmox VE</li><li>Synology Active Backup for Business</li><li>Proxmox Backup Server</li><li>Ubuntu Server</li><li>Windows Server</li><li>MariaDB cluster / MaxScale</li><li>Redis</li><li>GitHub Actions</li><li>CodeQL / Dependabot</li></ul></div>
+        <div class="tool"><h3>Infrastructure &amp; DevSecOps</h3><ul><li>VMware vSphere</li><li>Nutanix HCI</li><li>Proxmox VE</li><li>Synology Active Backup for Business</li><li>Proxmox Backup Server</li><li>Ubuntu Server</li><li>Windows Server</li><li>Kong API Gateway</li><li>MariaDB cluster / MaxScale</li><li>Redis</li><li>GitHub Actions</li><li>CodeQL / Dependabot</li></ul></div>
         <div class="tool"><h3>Platforms</h3><ul><li>LiteLLM / vLLM</li><li>LibreChat</li><li>WordPress + WP-CLI</li><li>Moodle</li><li>CMS grader</li><li>Laravel</li><li>.NET Core</li></ul></div>
       </div>
     </div>
